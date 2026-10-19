@@ -580,7 +580,7 @@ async def ask_model(
 # --------------------------------------------------------------------------
 
 def load_dataset(name: str) -> list[dict]:
-    path = ROOT / f"finmath-distill-{name}.jsonl"
+    path = ROOT / "datasets" / f"finmath-distill-{name}.jsonl"
     if not path.exists():
         raise FileNotFoundError(f"dataset file not found: {path}")
     items = []
