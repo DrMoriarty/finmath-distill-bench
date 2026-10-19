@@ -551,7 +551,7 @@ async def ask_model(
     last_error = None
     for attempt in range(retries):
         try:
-            async with session.post(url, json=payload) as resp:
+            async with session.post(url, json=payload, headers=headers) as resp:
                 if resp.status in (400, 401, 403, 404):
                     body = await resp.text()
                     raise FatalEndpointError(
