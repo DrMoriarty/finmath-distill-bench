@@ -51,9 +51,22 @@ import sys
 import time
 from pathlib import Path
 
+import warnings
+
 import aiohttp
 import numpy as np
 import sympy
+
+# Parsing LaTeX like "\text{Cov}(R_p, R_b)" (unknown function with several
+# arguments) makes implicit_multiplication build a Mul with a Tuple argument.
+# The resulting expression is still correct; silence the spurious sympy
+# deprecation noise instead of mangling the formula.
+warnings.filterwarnings(
+    "ignore",
+    category=sympy.utilities.exceptions.SymPyDeprecationWarning,
+    # warning text starts with a newline, hence the (?s).* prefix
+    message=r"(?s).*Using non-Expr arguments in Mul is deprecated",
+)
 from sympy.parsing.sympy_parser import (
     implicit_multiplication,
     parse_expr,
