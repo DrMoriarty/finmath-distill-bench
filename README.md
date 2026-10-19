@@ -109,7 +109,7 @@ python3 benchmark_model.py --model my-model --host localhost:8000 --token "$TOKE
 
 | Модель | enum | formula | math | yesno | Итог |
 |------------------------------------------------|:----:|:-------:|:----:|:-----:|:----:|
-| Qwen3.6-35B-A3B (non reasoning) | | | | | |
+| Qwen3.6-35B-A3B (non reasoning) | 3.47% | 34.90% | 88.54% | 93.44% | 66.96% |
 | Qwen3.6-35B-A3B (reasoning) | | | | | |
 | Qwen3.6-27B-FP8 | | | | | |
 | DeepSeek-V4-Flash-0731 (non reasoning) | | | | | |
