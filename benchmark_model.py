@@ -686,6 +686,7 @@ async def run(args: argparse.Namespace) -> int:
     timeout = aiohttp.ClientTimeout(total=args.timeout)
     done_counter = {"done": 0}
     skipped_counter = {"skipped": 0}
+    correct_counter = {"correct": 0}
 
     async def worker(session, name, item, results):
         async with sem:
@@ -710,6 +711,7 @@ async def run(args: argparse.Namespace) -> int:
             if response is not None:
                 correct = await asyncio.to_thread(grade, item, response)
                 results[name]["correct"] += int(correct)
+                correct_counter["correct"] += int(correct)
                 if not correct:
                     results[name]["mismatches"].append(
                         (item.get("id", "?"),
@@ -717,9 +719,12 @@ async def run(args: argparse.Namespace) -> int:
                          response[:160])
                     )
             done_counter["done"] += 1
-            skipped_note = (f", skipped: {skipped_counter['skipped']}"
-                            if skipped_counter["skipped"] else "")
-            print(f"\rprogress: {done_counter['done']}/{total}{skipped_note}",
+            # skipped = request errors after all retries; excluded from the
+            # graded total, so they never count towards the accuracy
+            print(f"\rprogress: {done_counter['done']}/{total} — "
+                  f"correct: {correct_counter['correct']}, "
+                  f"wrong: {done_counter['done'] - correct_counter['correct'] - skipped_counter['skipped']}, "
+                  f"skipped: {skipped_counter['skipped']}",
                   end="", flush=True)
 
     results = {
