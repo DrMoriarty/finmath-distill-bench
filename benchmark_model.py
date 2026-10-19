@@ -18,6 +18,10 @@ Options:
                            than dataset size (default: all questions)
         --seed S           Random seed for the sampling (default: none)
         --timeout SECONDS  Per-request timeout in seconds (default: 120)
+        --retries N        Attempts per question on transient network/HTTP
+                           errors (429, 5xx, connection drops, timeouts);
+                           after the last attempt the question is skipped and
+                           excluded from the accuracy denominator (default: 10)
         --max-tokens N     Max tokens for model responses (default: 2048)
         --temperature T    Sampling temperature sent to the endpoint
                            (default: 0)
@@ -553,8 +557,18 @@ async def ask_model(
     max_tokens: int,
     timeout: float,
     temperature: float = 0.0,
-    retries: int = 3,
+    retries: int = 10,
 ) -> str:
+    """Send one chat-completions request with retries on transient failures.
+
+    Transient (retryable) failures: HTTP 429, HTTP 5xx, connection errors,
+    connection resets and timeouts (aiohttp.ClientError, asyncio.TimeoutError).
+    Fatal errors (400/401/403/404, malformed response payload) raise
+    FatalEndpointError immediately and abort the whole benchmark run.
+
+    Backoff is exponential (capped at 30s) with jitter; for HTTP 429 the
+    server-provided Retry-After delay is honored when present.
+    """
     payload = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
@@ -563,6 +577,7 @@ async def ask_model(
     }
     last_error = None
     for attempt in range(retries):
+        retry_after = None
         try:
             async with session.post(url, json=payload, headers=headers) as resp:
                 if resp.status in (400, 401, 403, 404):
@@ -572,6 +587,8 @@ async def ask_model(
                     )
                 if resp.status >= 500 or resp.status == 429:
                     last_error = f"HTTP {resp.status}"
+                    if resp.status == 429:
+                        retry_after = resp.headers.get("Retry-After")
                 else:
                     data = await resp.json()
                     try:
@@ -584,8 +601,22 @@ async def ask_model(
             raise
         except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
             last_error = f"{type(exc).__name__}: {exc}"
-        await asyncio.sleep(min(2 ** attempt, 5))
+        # transient failure -> wait and retry
+        if attempt + 1 < retries:
+            await asyncio.sleep(_retry_delay(attempt, retry_after))
     raise RuntimeError(f"request failed after {retries} attempts: {last_error}")
+
+
+def _retry_delay(attempt: int, retry_after: str | None) -> float:
+    """Exponential backoff capped at 30s, with ±20% jitter. When the server
+    sends a valid Retry-After header, use it (jittered upwards slightly)."""
+    base = min(2 ** attempt, 30.0)
+    if retry_after is not None:
+        try:
+            return min(float(retry_after), 60.0)
+        except ValueError:
+            pass
+    return base * random.uniform(0.8, 1.2)
 
 
 # --------------------------------------------------------------------------
@@ -653,6 +684,7 @@ async def run(args: argparse.Namespace) -> int:
     sem = asyncio.Semaphore(args.concurrency)
     timeout = aiohttp.ClientTimeout(total=args.timeout)
     done_counter = {"done": 0}
+    skipped_counter = {"skipped": 0}
 
     async def worker(session, name, item, results):
         async with sem:
@@ -661,15 +693,19 @@ async def run(args: argparse.Namespace) -> int:
                     session, url, headers, args.model,
                     build_prompt(item), args.max_tokens, args.timeout,
                     temperature=args.temperature,
+                    retries=args.retries,
                 )
             except FatalEndpointError:
                 raise
             except Exception as exc:
-                results[name]["errors"] += 1
+                # question exhausted all retries: skip it and exclude it from
+                # the accuracy denominator
+                results[name]["skipped"] += 1
                 results[name].setdefault("error_examples", []).append(
                     (item.get("id", "?"), str(exc)[:200])
                 )
                 response = None
+                skipped_counter["skipped"] += 1
             if response is not None:
                 correct = await asyncio.to_thread(grade, item, response)
                 results[name]["correct"] += int(correct)
@@ -680,10 +716,13 @@ async def run(args: argparse.Namespace) -> int:
                          response[:160])
                     )
             done_counter["done"] += 1
-            print(f"\rprogress: {done_counter['done']}/{total}", end="", flush=True)
+            skipped_note = (f", skipped: {skipped_counter['skipped']}"
+                            if skipped_counter["skipped"] else "")
+            print(f"\rprogress: {done_counter['done']}/{total}{skipped_note}",
+                  end="", flush=True)
 
     results = {
-        name: {"correct": 0, "errors": 0, "mismatches": [], "error_examples": [],
+        name: {"correct": 0, "skipped": 0, "mismatches": [], "error_examples": [],
                "total": len(items)}
         for name, items in plan
     }
@@ -707,21 +746,29 @@ async def run(args: argparse.Namespace) -> int:
     print(f" — finished in {elapsed:.1f}s\n")
 
     # ------------------------------ report --------------------------------
+    # "graded" excludes questions skipped after exhausting all retries, so
+    # they never affect the accuracy.
     print("=" * 60)
-    print(f"{'dataset':<12}{'correct/total':>18}{'accuracy':>12}{'errors':>9}")
+    print(f"{'dataset':<12}{'correct/graded':>18}{'accuracy':>12}{'skipped':>9}")
     print("-" * 60)
-    sum_correct = sum_total = sum_errors = 0
+    sum_correct = sum_total = sum_skipped = 0
     for name, res in results.items():
-        correct, total_ds, errors = res["correct"], res["total"], res["errors"]
-        pct = 100.0 * correct / total_ds if total_ds else 0.0
-        print(f"{name:<12}{correct:>10}/{total_ds:<7}{pct:>11.2f}%{errors:>9}")
+        correct, total_ds, skipped = res["correct"], res["total"], res["skipped"]
+        graded = total_ds - skipped
+        pct = 100.0 * correct / graded if graded else 0.0
+        print(f"{name:<12}{correct:>10}/{graded:<7}{pct:>11.2f}%{skipped:>9}")
         sum_correct += correct
         sum_total += total_ds
-        sum_errors += errors
+        sum_skipped += skipped
     print("-" * 60)
-    pct = 100.0 * sum_correct / sum_total if sum_total else 0.0
-    print(f"{'TOTAL':<12}{sum_correct:>10}/{sum_total:<7}{pct:>11.2f}%{sum_errors:>9}")
+    graded_total = sum_total - sum_skipped
+    pct = 100.0 * sum_correct / graded_total if graded_total else 0.0
+    print(f"{'TOTAL':<12}{sum_correct:>10}/{graded_total:<7}"
+          f"{pct:>11.2f}%{sum_skipped:>9}")
     print("=" * 60)
+    if sum_skipped:
+        print(f"note: {sum_skipped} question(s) skipped after "
+              f"{args.retries} retries and excluded from the score")
 
     if not args.verbose:
         for name, res in results.items():
@@ -763,6 +810,11 @@ def parse_args(argv=None) -> argparse.Namespace:
                         help="random seed for sampling")
     parser.add_argument("--timeout", type=float, default=120.0,
                         help="per-request timeout in seconds (default: 120)")
+    parser.add_argument("--retries", type=int, default=10,
+                        help="attempts per question on transient errors (429, "
+                             "5xx, network drops, timeouts); a question that "
+                             "fails all attempts is skipped and excluded from "
+                             "the score (default: 10)")
     parser.add_argument("--max-tokens", type=int, default=MAX_TOKENS_DEFAULT,
                         help="max tokens per response (default: 2048)")
     parser.add_argument("--temperature", type=float, default=0.0,
@@ -777,6 +829,8 @@ def parse_args(argv=None) -> argparse.Namespace:
         parser.error("--limit must be >= 1")
     if args.temperature < 0:
         parser.error("--temperature must be >= 0")
+    if args.retries < 1:
+        parser.error("--retries must be >= 1")
     return args
 
 
