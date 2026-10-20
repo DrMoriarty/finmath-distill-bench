@@ -32,8 +32,10 @@ Grading rules:
             (case/punctuation/extra-whitespace tolerant);
     formula symbolic comparison via sympy (LaTeX -> sympy expression, then
             numeric sampling + simplify); tolerant to synonymous variable
-            names via a name-plausible symbol-bijection fallback and to a
-            missing "X =" prefix; no char-by-char match;
+            names via a name-plausible symbol-bijection fallback, to a
+            missing "X =" prefix and to percent-sign notation
+            ("\\times 100\\%" == "\\times 100", "15\\%" == "(15/100)");
+            no char-by-char match;
     math    numeric comparison of the final "Answer: <number>" against the
             gold answer with a small relative tolerance (percent signs and
             multi-value gold answers are handled);
@@ -63,9 +65,9 @@ import aiohttp
 import numpy as np
 import sympy
 
-# Parsing LaTeX like "\text{Cov}(R_p, R_b)" (unknown function with several
-# arguments) makes implicit_multiplication build a Mul with a Tuple argument,
-# and "\not"-style tokens inside \sqrt{...} similarly produce a Pow with a Not
+# Parsing LaTeX with implicit multiplication can still build a Mul with a
+# Tuple argument in odd corners ("K (a, b)" written with a space), and
+# "\not"-style tokens inside \sqrt{...} similarly produce a Pow with a Not
 # argument. The resulting expressions are still correct; silence the spurious
 # sympy deprecation noise instead of mangling the formulas.
 warnings.filterwarnings(
@@ -521,6 +523,41 @@ for _name in ("S", "N", "I", "O", "Q", "E", "beta", "gamma", "zeta", "Gamma"):
 _NAME_TOKEN_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
 
+def _undefined_function_names(s: str) -> set[str]:
+    r"""Identifiers applied to 2+ comma-separated arguments ("Cov(x, y)").
+
+    With implicit_multiplication such a call cannot be a plain multiplication
+    (a comma inside the parentheses makes a Tuple), yet sympy still parses
+    "Cov(r_i, r_m)" as Cov*(r_i, r_m) — a Mul with a Tuple argument, which it
+    can neither evaluate numerically nor simplify. Registering the name as an
+    undefined Function upfront keeps the application intact so that
+    structurally equal formulas compare as equal after symbol substitution.
+    """
+    names = set()
+    for m in re.finditer(r"([A-Za-z_][A-Za-z0-9_]*)\s*\(", s):
+        depth, end = 0, None
+        for i in range(m.end() - 1, len(s)):
+            if s[i] == "(":
+                depth += 1
+            elif s[i] == ")":
+                depth -= 1
+                if depth == 0:
+                    end = i
+                    break
+        if end is None:
+            continue
+        d = 0
+        for ch in s[m.end():end]:
+            if ch in "([{":
+                d += 1
+            elif ch in ")]}":
+                d -= 1
+            elif ch == "," and d == 0:
+                names.add(m.group(1))
+                break
+    return names
+
+
 def _split_name_tokens(s: str) -> str:
     """Split multi-letter name tokens into products of single-letter symbols
     ("kP" -> "k P", "EMA_prev" -> "E M A_prev"). Tokens that denote known
@@ -643,10 +680,37 @@ def _replace_braced_fracs(s: str) -> str:
         res.append("((%s)/(%s))" % (num, den))
 
 
+# The three roles "%" plays in the dataset, handled by _normalize_percent:
+# - "\times 100\%" is a unit marker ("express the result in percent"),
+#   numerically the same as "\times 100" — the "%" is dropped;
+# - "15\%" is a percent value -> (15/100);
+# - "%" glued to a name ("\text{Bullish}\%", "\%_{\text{actual},i}") is part
+#   of the symbol name -> "pct".
+_PERCENT_X100_RE = re.compile(r"(\\(?:times|cdot|ast)\s*|\*\s*)100\s*(?:\\[,;!])*\s*\\?%")
+_PERCENT_VALUE_RE = re.compile(
+    r"(?<![\w\\])(\d+(?:\.\d+)?)\s*(?:\\[,;!])*\s*\\?%(?![A-Za-z0-9_{])"
+)
+_PERCENT_NAME_RE = re.compile(r"\\%(?=[A-Za-z0-9_{])|(?<=[A-Za-z0-9_}])\s*\\?%")
+
+
+def _normalize_percent(s: str) -> str:
+    r"""Fold percent signs into the expression so it stays parseable.
+
+    Must run AFTER \text{...} arguments are cleaned up: a "%" inside
+    \text{...} (e.g. the "(%)" column-header suffix) is pure formatting and
+    disappears together with the other non-alphanumeric characters there.
+    """
+    s = _PERCENT_X100_RE.sub(r"\g<1>100", s)
+    s = _PERCENT_VALUE_RE.sub(r"(\1/100)", s)
+    s = _PERCENT_NAME_RE.sub("pct", s)
+    return s.replace("\\%", "pct").replace("%", " pct ")
+
+
 def normalize_formula(s: str) -> str:
     """Whitespace/notation-insensitive normalization used both for the
     fast-path string comparison and as the symbolic fallback."""
     s = s.strip().strip("$").strip().rstrip(".").strip()
+    s = _normalize_percent(s)
     s = re.sub(r"\\left|\\right|\\,|\\;|\\!|\\quad|\\qquad|\\displaystyle", " ", s)
     s = s.replace("\\cdot", "*").replace("\\times", "*").replace("\\ast", "*")
     s = s.replace("\\approx", "=").replace("\\sim", "=")
@@ -667,11 +731,33 @@ def latex_to_expr(latex: str, split_symbols_mode: bool = False):
     if _UNSUPPORTED_RE.search(s):
         return None
 
-    # separate adjacent commands ("\sigma\sqrt{T}" -> " \sigma \sqrt {T}")
-    s = re.sub(r"\\([A-Za-z]+)", r" \\\1 ", s)
+    # unwrap \text{...}/\mathrm{...} etc BEFORE separating the commands.
+    # A "\text{Cov}" directly followed by "(" must stay glued to it, so that
+    # Cov(r_i, r_m) parses as a function application; with the separation
+    # running first, the injected space yields the product Cov*(r_i, r_m)
+    # — a Mul with a Tuple argument, which sympy can neither evaluate
+    # numerically nor simplify, so such formulas could only match verbatim.
+    def _text_repl(m):
+        rest = m.string[m.end():]
+        glued = rest[:1] in ("_", "^") or rest.startswith("(") \
+            or re.match(r"\\left\s*\(", rest)
+        return " " + _cleanup_text_arg(m.group(1)) + ("" if glued else " ")
+
+    s = _TEXTEXT_RE.sub(_text_repl, s)
+
+    # separate adjacent commands ("\sigma\sqrt{T}" -> " \sigma \sqrt {T}"),
+    # but a command directly followed by a subscript/superscript keeps it
+    # attached ("\beta_i" must parse as the single symbol "beta_i", not as
+    # the product "beta * _i")
+    s = re.sub(
+        r"\\([A-Za-z]+)",
+        lambda m: " \\" + m.group(1)
+        + ("" if s[m.end():m.end() + 1] in ("_", "^") else " "),
+        s,
+    )
     s = re.sub(r"\\left|\\right|\\,|\\;|\\!|\\quad|\\qquad|\\displaystyle|\\ ", " ", s)
     s = re.sub(r"\\(?:d|t)?frac", r"\\frac", s)
-    s = _TEXTEXT_RE.sub(lambda m: _cleanup_text_arg(m.group(1)), s)
+    s = _normalize_percent(s)
     s = s.replace("\\cdot", "*").replace("\\times", "*").replace("\\ast", "*")
     s = s.replace("\\div", "/").replace("\\approx", "=").replace("\\sim", "=")
 
@@ -698,7 +784,9 @@ def latex_to_expr(latex: str, split_symbols_mode: bool = False):
     # adjacent tokens from merging ("\sigma\sqrt{T}" -> "sigma sqrt(T)");
     # Python keywords (e.g. \lambda) get a trailing underscore
     s = _WORD_RE.sub(
-        lambda m: " " + m.group(1) + ("_" if keyword.iskeyword(m.group(1)) else "") + " ",
+        lambda m: " " + m.group(1)
+        + ("_" if keyword.iskeyword(m.group(1)) else "")
+        + ("" if s[m.end():m.end() + 1] in ("_", "^") else " "),
         s,
     )
     s = s.replace("\\", "").replace("$", "")
@@ -707,10 +795,25 @@ def latex_to_expr(latex: str, split_symbols_mode: bool = False):
         return None
     if split_symbols_mode:
         s = _split_name_tokens(s)
+    local = dict(_PARSE_LOCALS)
+    fnames = _undefined_function_names(s)
+    for fname in fnames:
+        # known sympy names (Max, Min, log, ...) must keep their live
+        # definitions, otherwise e.g. Max(a, b) stops evaluating numerically
+        if fname not in local and not hasattr(sympy, fname):
+            local[fname] = sympy.Function(fname)
+    # every other identifier must parse as a plain Symbol: a name that
+    # clashes with a sympy callable ("Float", "Beta") would otherwise
+    # resolve to the sympy object itself and break the expression handling
+    for name in set(_NAME_TOKEN_RE.findall(s)):
+        if name in local or name in fnames or keyword.iskeyword(name) \
+                or name in _LIVE_SYMPY_NAMES:
+            continue
+        local[name] = sympy.Symbol(name)
     try:
         expr = parse_expr(
             s,
-            local_dict=dict(_PARSE_LOCALS),
+            local_dict=local,
             transformations=_EXPR_TRANSFORMATIONS,
             evaluate=False,
         )
@@ -823,6 +926,11 @@ def _pairs_equal(pa, pb, rng: np.random.Generator) -> bool:
 # (checked numerically) and related names on every mapped pair.
 
 _MAX_RENAME_SYMBOLS = 6  # 6! = 720 candidate bijections max
+
+# sympy names that must keep their live meaning when they appear as a token
+# in a formula (single-argument applications like log(x)/sqrt(T) are not
+# captured by _undefined_function_names, which only handles comma-args)
+_LIVE_SYMPY_NAMES = set(_LATEX_FUNCS.values()) | {"sqrt", "pi", "E", "oo", "zoo"}
 
 
 def _is_subsequence(short: str, long: str) -> bool:
