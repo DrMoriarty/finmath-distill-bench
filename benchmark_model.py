@@ -153,24 +153,146 @@ def parse_numbers(text: str) -> list[float]:
 
 # ------------------------------- enum -------------------------------------
 
+# Check/cross marks models put in front of (or around) list items.
+_MARK_RE = re.compile(r"[\u2705\u2611\u2714\u2713\u274c\u2717\u2718\u2716\uFE0F]")
+_SELECT_MARK_RE = re.compile(r"[\u2705\u2611\u2714\u2713]")
+_REJECT_MARK_RE = re.compile(r"[\u274c\u2717\u2718\u2716]")
+
+# A line that looks like a list entry: "- item", "* item", "• item", "•item",
+# "1. item", "2) item", "✅ item" (a bullet may precede the mark). A bare "*"
+# followed by a non-space (i.e. markdown bold "**text**") is NOT a list marker.
+_LIST_LINE_RE = re.compile(
+    r"^\s*(?:"
+    r"[-\u2022\u00b7\u2013\u2014>+]\s*\S"
+    r"|\*\s+\S"
+    r"|\d{1,3}[.)]\s+\S"
+    r"|[\u2705\u2611\u2714\u2713\u274c\u2717\u2718\u2716]"
+    r")"
+)
+
+# Leading bullets / numbering of a single list item ("1. ", "- ", "-- ", "> ").
+# A numbering marker must be followed by whitespace (so "1.5x", "10-K",
+# "401(k)", "2%", "-MPC", "10.5%" stay intact).
+_BULLET_PREFIX_RE = re.compile(
+    r"^(?:\s*(?:[-\u2022\u00b7\u2013\u2014>+]+|\d{1,3}[.)])(?=\s|$))+\s*"
+)
+
+# Lead-in before the answer body. "Answers questions" (no is/are/colon) must
+# NOT match — gold items can contain the word "answers".
+_ANSWER_TAIL_RE = re.compile(
+    r"\banswers?\b\s*(?:is|are\b)?\s*[:\-]\s*(.*)"
+    r"|\banswers?\s+(?:is|are)\b\s*[:\-]?\s*(.*)"
+    r"|^\s*answers?\b\s*[:\-]?\s*(.*)",
+    re.IGNORECASE | re.DOTALL,
+)
+
+# Inline numbered lists written without commas: "The answer is 1. a 2. b".
+# Lookahead keeps the digits out of the match, so a skipped "…16)" marker does
+# not swallow the whitespace that precedes the next real marker. Applied per
+# comma/newline chunk with paren-depth awareness, so that a trailing
+# "…(pre-IFRS 16)" or "…, 0)" is not mistaken for a list marker.
+_NUM_MARKER_RE = re.compile(r"\s+(?=\d{1,3}[.)]\s+)")
+_BULLETISH_RE = re.compile(r"[\s\-*\u2022\u00b7\u2013\u2014>]*")
+
+
+def _split_numbered(part: str) -> list[str]:
+    """Split "1. a 2. b" style chunks at top-level numbering markers.
+    Markers inside unclosed parentheses and the chunk's own leading
+    numbering ("- 1. a ...", "1. a ...") are not split points."""
+    if not _NUM_MARKER_RE.search(part):
+        return [part]
+    parts, last, scanned, depth = [], 0, 0, 0
+    for m in _NUM_MARKER_RE.finditer(part):
+        depth += part[scanned:m.start()].count("(") - part[scanned:m.start()].count(")")
+        scanned = m.end()
+        seg = part[last:m.start()]
+        if depth != 0 or _BULLETISH_RE.fullmatch(seg):
+            continue  # inside parentheses, or the marker numbers the chunk itself
+        parts.append(part[last:m.start()])
+        last = m.end()
+    parts.append(part[last:])
+    return parts
+
+# Sentences that start these ways are commentary about the answer, not items.
+_COMMENTARY_RE = re.compile(
+    r"^(?:note\b|nb\b|explanation\b|therefore\b|thus\b|hence\b|in summary\b|"
+    r"to summarize\b|this (?:is|means|shows|implies)\b|"
+    r"these (?:are|represent|options|selections)\b|that (?:is|means)\b|"
+    r"respectively\b|the (?:other|remaining)\b|let me\b|i (?:hope|can)\b|"
+    r"feel free\b)\b",
+    re.IGNORECASE,
+)
+
+_PROMPT_OPTIONS_RE = re.compile(r"\boptions?\s*:\s*(.+)", re.IGNORECASE | re.DOTALL)
+
+# "all of the above"-style answers: resolve them against the option list from
+# the prompt. The lookbehind keeps "not all of the above" from matching.
+_ALL_OPTIONS_RE = re.compile(
+    r"(?<!\bnot\s)\ball of the (?:above|listed|following)\b"
+    r"|^\W*(?:all|both|each)\b[^.\n]*\b(?:above|listed|following|options?|choices?)\b"
+    r"|^\W*both\b[.\s]*$",
+    re.IGNORECASE | re.DOTALL,
+)
+_NONE_OPTIONS_RE = re.compile(
+    r"\b(?:none|neither)\b[^.\n]*\b(?:above|listed|following|options?|choices?)\b",
+    re.IGNORECASE,
+)
+
+
 def _clean_enum_item(item: str) -> str:
-    s = item.strip().lower()
-    s = re.sub(r"^(?:\s*[-*•\d]+[\.\)]\s*)+", "", s)  # bullets / numbering
-    s = s.strip(" \t\r\n\"'`*")
+    s = _MARK_RE.sub("", item)
+    s = s.strip().lower()
+    # markdown emphasis first, so that "**1. item**" exposes the numbering
+    # to the bullet stripper below; a second pass handles "- **1. item**"
+    # (the "**" between the dash and the number blocks the first pass)
+    s = s.strip(" \t\r\n\"'`*_~")
+    s = _BULLET_PREFIX_RE.sub("", s)  # bullets / numbering
+    s = s.strip(" \t\r\n\"'`*_~")
+    s = _BULLET_PREFIX_RE.sub("", s)
+    s = re.sub(r"^only\s+", "", s)  # "only capital raising" == "capital raising"
+    s = s.strip(" \t\r\n\"'`*_~")
     s = re.sub(r"\s+", " ", s)
     s = s.rstrip(".").strip()
     return s
 
 
+def _answer_body(text: str) -> str:
+    """Strip the prose around the answer: take everything after the last
+    "answer is/are:" style lead-in, if the reply contains one."""
+    t = text.strip()
+    body = None
+    for m in _ANSWER_TAIL_RE.finditer(t):
+        body = m.group(1) or m.group(2) or m.group(3)
+    return body if body is not None else t
+
+
+def _marked_answer_lines(text: str) -> list[str] | None:
+    """Lines of a bulleted/numbered/check-marked list, if the reply has one.
+
+    Headers ("**Correct selections:**"), introductory sentences and trailing
+    commentary are not part of the list and are dropped. Explicitly rejected
+    options ("❌ item") are dropped as well. Returns None when the reply does
+    not contain a recognizable list."""
+    t = _answer_body(text)
+    marked = [ln for ln in t.splitlines() if _LIST_LINE_RE.match(ln)]
+    if not marked:
+        return None
+    kept = [ln for ln in marked
+            if not (_REJECT_MARK_RE.search(ln) and not _SELECT_MARK_RE.search(ln))]
+    return kept or None
+
+
 def parse_enum_answer(text: str, split_and: bool = False,
                       expand_single: bool = True) -> set[str]:
-    t = text.strip()
-    matches = list(re.finditer(r"\banswer\b\s*(?:is|are)?\s*[:\-]?\s*(.*)",
-                               t, re.IGNORECASE | re.DOTALL))
-    if matches:
-        t = matches[-1].group(1)
+    t = _answer_body(text)
+    marked = _marked_answer_lines(text)
+    if marked:
+        # The reply contains a list: only list lines are the answer, anything
+        # before/after them is formatting or commentary.
+        t = "\n".join(marked)
     t = t.strip(" \t\r\n\"'`*")
     parts = [p for p in re.split(r"[;\n]+|\s*,\s*(?![^()]*\))", t) if p.strip()]
+    parts = [q for p in parts for q in _split_numbered(p) if q.strip()]
     if split_and:
         # "a, b and c" -> ["a", "b", "c"]; only comma-free chunks are split so
         # that items legitimately containing "and" are not torn apart.
@@ -185,7 +307,104 @@ def parse_enum_answer(text: str, split_and: bool = False,
         ]
     elif expand_single and len(parts) == 1 and "," not in parts[0]:
         parts = re.split(r"\s+and\s+", parts[0], flags=re.IGNORECASE)
-    return {c for p in parts if (c := _clean_enum_item(p))}
+    out = set()
+    for p in parts:
+        c = _clean_enum_item(p)
+        # Gold items never end with a colon, so "...:" parts are headers like
+        # "Correct selections:" / "The following factors:", not answers.
+        if c and not c.endswith(":"):
+            out.add(c)
+    return out
+
+
+def _extract_prompt_options(prompt: str) -> list[str]:
+    """The enumerated choices from the prompt ("... Options: a, b, c.")."""
+    matches = list(_PROMPT_OPTIONS_RE.finditer(prompt))
+    if not matches:
+        return []
+    tail = matches[-1].group(1).strip().rstrip(".")
+    parts = re.split(r"[;\n]+|\s*,\s*(?![^()]*\))", tail)
+    return [c for p in parts if (c := _clean_enum_item(p))]
+
+
+def _resolve_all_of_above(response: str, options: list[str]) -> str | None:
+    """Resolve "all of the above" / "none of the above" / "all except X"
+    style replies into an explicit list of options. None = nothing to resolve.
+    """
+    if not options:
+        return None
+    if _ALL_OPTIONS_RE.search(response):
+        m = re.search(r"\bexcept\b|\bapart from\b|\bother than\b", response, re.IGNORECASE)
+        if m:
+            excl_clean = _clean_enum_item(response[m.end():])
+            excluded = set()
+            if excl_clean:
+                for chunk in re.split(r"\s+and\s+", excl_clean, flags=re.IGNORECASE):
+                    excluded.update(o for o in options if o in chunk or chunk in o)
+            if excluded:
+                return ", ".join(o for o in options if o not in excluded)
+            return None  # exclusions do not match any option; don't guess
+        return ", ".join(options)
+    if _NONE_OPTIONS_RE.search(response):
+        return ""
+    return None
+
+
+def _without_commentary(parsed: set[str], gold: set[str]) -> set[str]:
+    """Drop parts that are clearly commentary ("Note: the rest are wrong.");
+    a part that overlaps some gold item text is always kept."""
+    return {
+        c for c in parsed
+        if not (_COMMENTARY_RE.match(c) and not any(c in g or g in c for g in gold))
+    }
+
+
+_TOKEN_RE = re.compile(r"[a-z0-9]+(?:[._/\u2011-][a-z0-9]+)*")
+
+
+def _fuzzy_eligible(gold: set[str]) -> bool:
+    """Fuzzy matching is only meaningful for phrase-like gold items: at least
+    two word tokens each, and no item's token set nested inside another one's
+    ("1 - (Total Dividends / Net Income)" vs "(Net Income - Total Dividends) /
+    Net Income" share their words; "e*" is a single token). Otherwise a
+    missing or extra item can silently "cover" another one."""
+    token_sets = []
+    for g in gold:
+        ts = set(_TOKEN_RE.findall(g))
+        if len(ts) < 2:
+            return False
+        token_sets.append(ts)
+    for a in token_sets:
+        for b in token_sets:
+            if a is not b and a <= b:
+                return False
+    return True
+
+
+def _fuzzy_list_match(response: str, gold: set[str]) -> bool:
+    """Fallback for replies whose list items are reformulated or extended
+    ("✅ A reverse cash-and-carry arbitrage opportunity, i.e. buy spot..."):
+    every gold item must be covered (word-wise) by a list line, and every
+    list line must cover at least one gold item (so extra selected options
+    still fail). Word-level containment, not substrings: short gold items
+    like "e" must not match inside "e_actual" or "1.5"."""
+    if not _fuzzy_eligible(gold):
+        return False
+    lines = _marked_answer_lines(response)
+    if not lines:
+        return False
+    line_tokens = [set(_TOKEN_RE.findall(c)) for ln in lines if (c := _clean_enum_item(ln))]
+    gold_tokens = []
+    for g in gold:
+        gt = set(_TOKEN_RE.findall(g))
+        if not gt:
+            return False
+        gold_tokens.append(gt)
+    # every gold item must be covered by some line...
+    if not all(any(gt <= lt for lt in line_tokens) for gt in gold_tokens):
+        return False
+    # ...and every line must cover at least one gold item
+    return all(any(gt <= lt for gt in gold_tokens) for lt in line_tokens)
 
 
 def grade_enum(item: dict, response: str) -> bool:
@@ -195,12 +414,26 @@ def grade_enum(item: dict, response: str) -> bool:
                              split_and=False, expand_single=False)
     if not gold:
         return False
+    candidates = [response]
+    resolved = _resolve_all_of_above(
+        response, _extract_prompt_options(item["messages"][0]["content"]))
+    if resolved is not None:
+        candidates.append(resolved)
+    parsed_variants = [
+        parse_enum_answer(cand, split_and=sa, expand_single=es)
+        for cand in candidates
+        for sa, es in ((False, False), (True, False), (True, True))
+    ]
     # The model reply may use "and"-separated lists; accept if any reasonable
     # interpretation of the reply matches the gold set.
-    return any(
-        parse_enum_answer(response, split_and=sa, expand_single=es) == gold
-        for sa, es in ((False, False), (True, False), (True, True))
-    )
+    if any(parsed == gold for parsed in parsed_variants):
+        return True
+    # Retry ignoring trailing/leading commentary sentences...
+    if any(_without_commentary(parsed, gold) == gold
+           for parsed in parsed_variants):
+        return True
+    # ...and finally a fuzzy match against the reply's list lines.
+    return _fuzzy_list_match(response, gold)
 
 
 # ------------------------------ yesno -------------------------------------
