@@ -15,7 +15,7 @@ Options:
     -d, --datasets LIST    Comma-separated dataset names: enum,formula,math,yesno
                            or "all" (default: all)
     -n, --limit N          Max questions per dataset; random sample if smaller
-                           than dataset size (default: all questions)
+                           than dataset size (default: 1000)
         --seed S           Random seed for the sampling (default: none)
         --timeout SECONDS  Per-request timeout in seconds (default: 120)
         --retries N        Attempts per question on transient network/HTTP
@@ -1042,9 +1042,9 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("-d", "--datasets", default="all",
                         help='comma-separated datasets (enum,formula,math,yesno) '
                              'or "all" (default: all)')
-    parser.add_argument("-n", "--limit", type=int, default=None,
+    parser.add_argument("-n", "--limit", type=int, default=1000,
                         help="max questions per dataset, random sample "
-                             "(default: all)")
+                             "(default: 1000)")
     parser.add_argument("--seed", type=int, default=None,
                         help="random seed for sampling")
     parser.add_argument("--timeout", type=float, default=120.0,
@@ -1064,7 +1064,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     args = parser.parse_args(argv)
     if args.concurrency < 1:
         parser.error("--concurrency must be >= 1")
-    if args.limit is not None and args.limit < 1:
+    if args.limit < 1:
         parser.error("--limit must be >= 1")
     if args.temperature < 0:
         parser.error("--temperature must be >= 0")
