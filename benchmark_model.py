@@ -80,6 +80,16 @@ from sympy.parsing.sympy_parser import (
 
 ROOT = Path(__file__).resolve().parent
 DATASET_NAMES = ("enum", "formula", "math", "yesno")
+
+# Optional system prompt sent along with each question, per dataset.
+SYSTEM_PROMPTS = {
+    "enum": (
+        "You are taking a multiple-select test. Reply with the correct "
+        "options only, listed exactly as they appear in the question and "
+        "separated by commas. Do not add explanations, comments or any "
+        "text formatting (no markdown, bullets, numbering or bold)."
+    ),
+}
 MAX_TOKENS_DEFAULT = 2048
 MATH_REL_TOL = 5e-3  # gold answers are rounded, allow ~0.5% relative error
 
@@ -792,6 +802,7 @@ async def ask_model(
     timeout: float,
     temperature: float = 0.0,
     retries: int = 10,
+    system: str | None = None,
 ) -> str:
     """Send one chat-completions request with retries on transient failures.
 
@@ -803,9 +814,13 @@ async def ask_model(
     Backoff is exponential (capped at 30s) with jitter; for HTTP 429 the
     server-provided Retry-After delay is honored when present.
     """
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": prompt})
     payload = {
         "model": model,
-        "messages": [{"role": "user", "content": prompt}],
+        "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
@@ -929,6 +944,7 @@ async def run(args: argparse.Namespace) -> int:
                     build_prompt(item), args.max_tokens, args.timeout,
                     temperature=args.temperature,
                     retries=args.retries,
+                    system=SYSTEM_PROMPTS.get(name),
                 )
             except FatalEndpointError:
                 raise
