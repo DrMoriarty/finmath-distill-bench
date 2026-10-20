@@ -31,8 +31,9 @@ Grading rules:
     enum    order-insensitive set comparison of the selected items
             (case/punctuation/extra-whitespace tolerant);
     formula symbolic comparison via sympy (LaTeX -> sympy expression, then
-            numeric sampling + simplify), falling back to normalized string
-            comparison when parsing is impossible; no char-by-char match;
+            numeric sampling + simplify); tolerant to synonymous variable
+            names via a name-plausible symbol-bijection fallback and to a
+            missing "X =" prefix; no char-by-char match;
     math    numeric comparison of the final "Answer: <number>" against the
             gold answer with a small relative tolerance (percent signs and
             multi-value gold answers are handled);
@@ -47,6 +48,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import itertools
 import json
 import keyword
 import random
@@ -88,6 +90,15 @@ SYSTEM_PROMPTS = {
         "options only, listed exactly as they appear in the question and "
         "separated by commas. Do not add explanations, comments or any "
         "text formatting (no markdown, bullets, numbering or bold)."
+    ),
+    "formula": (
+        "You are answering a finance formula test. Reply with a single "
+        "formula only: one line in LaTeX, no explanations, derivations, "
+        "comments or markdown (no $$ blocks, no code fences). Use exactly "
+        "the same variable names and symbols for quantities as the question "
+        "does — do not rename, abbreviate or invent new symbols. Write "
+        "multi-word quantity names inside \\text{...} (e.g. "
+        "\\text{Net Income}_t) and keep any subscripts used in the question."
     ),
 }
 MAX_TOKENS_DEFAULT = 2048
@@ -548,7 +559,6 @@ _LATEX_FUNCS = {
 
 _UNSUPPORTED_RE = re.compile(r"\\(sum|prod|int|lim|max_|min_|bigcup|bigcap)\b")
 _TEXTEXT_RE = re.compile(r"\\(?:text|mbox|mathrm|operatorname|mathbf|boldsymbol)\s*\{([^{}]*)\}")
-_FRAC_RE = re.compile(r"\\[dt]?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}")
 _SQRT_IDX_RE = re.compile(r"\\sqrt\s*\[([^\[\]]*)\]\s*\{([^{}]*)\}")
 _SQRT_RE = re.compile(r"\\sqrt\s*\{([^{}]*)\}")
 _SUP_BRACE_RE = re.compile(r"\^\s*\{([^{}]*)\}")
@@ -560,6 +570,77 @@ _WORD_RE = re.compile(r"\\([A-Za-z]+)")
 
 def _cleanup_text_arg(content: str) -> str:
     return re.sub(r"[^A-Za-z0-9]", "", content)
+
+
+def _find_matching_brace(s: str, start: int) -> int | None:
+    """Index of the '}' matching the '{' at `start`, or None."""
+    depth = 0
+    for i in range(start, len(s)):
+        if s[i] == "{":
+            depth += 1
+        elif s[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return i
+    return None
+
+
+def _replace_single_char_fracs(s: str) -> str:
+    while True:
+        m = re.search(r"\\[dt]?frac\s*([0-9]|[A-Za-z])\s*([0-9]|[A-Za-z])", s)
+        if not m:
+            return s
+        s = s[: m.start()] + "((%s)/(%s))" % (m.group(1), m.group(2)) + s[m.end():]
+
+
+def _replace_sqrt_indexed(s: str) -> str:
+    while True:
+        m = _SQRT_IDX_RE.search(s)
+        if not m:
+            return s
+        s = s[: m.start()] + "((%s)**(1/(%s)))" % (m.group(2), m.group(1)) + s[m.end():]
+
+
+def _replace_sqrt(s: str) -> str:
+    while True:
+        m = _SQRT_RE.search(s)
+        if not m:
+            return s
+        s = s[: m.start()] + "sqrt(%s)" % m.group(1) + s[m.end():]
+
+
+def _replace_braced_fracs(s: str) -> str:
+    r"""Replace \frac{num}{den} with balanced-brace arguments (the arguments
+    may themselves contain braces, e.g. \frac{W_{nom}}{(1+\pi)^t})."""
+    res, pos = [], 0
+    pat = re.compile(r"\\[dt]?frac\s*")
+    while True:
+        m = pat.search(s, pos)
+        if not m:
+            res.append(s[pos:])
+            return "".join(res)
+        res.append(s[pos:m.start()])  # text before \frac; the \frac itself is replaced
+        pos = m.end()
+        if pos >= len(s) or s[pos] != "{":
+            res.append("\\frac")  # malformed here; leave for later stages
+            continue
+        e1 = _find_matching_brace(s, pos)
+        if e1 is None:
+            res.append(s[pos:])
+            return "".join(res)
+        num, pos = s[pos + 1:e1], e1 + 1
+        j = pos
+        while j < len(s) and s[j] in " \t":
+            j += 1
+        if j < len(s) and s[j] == "{":
+            e2 = _find_matching_brace(s, j)
+            if e2 is None:
+                den, pos = s[j:], len(s)
+            else:
+                den, pos = s[j + 1:e2], e2 + 1
+        else:
+            den, pos = (s[j] if j < len(s) else ""), j + 1
+        res.append("((%s)/(%s))" % (num, den))
 
 
 def normalize_formula(s: str) -> str:
@@ -597,26 +678,14 @@ def latex_to_expr(latex: str, split_symbols_mode: bool = False):
     for src, dst in _LATEX_FUNCS.items():
         s = re.sub(r"\\" + src + r"\b", dst, s)
 
+    # frac/sqrt replacement with nested arguments needs several passes:
+    # inner fracs are expanded first, then outer ones see brace-free args
     while True:
-        m = re.search(r"\\[dt]?frac\s*([0-9]|[A-Za-z])\s*([0-9]|[A-Za-z])", s)
-        if not m:
+        new = _replace_sqrt(_replace_sqrt_indexed(
+            _replace_braced_fracs(_replace_single_char_fracs(s))))
+        if new == s:
             break
-        s = s[: m.start()] + "((%s)/(%s))" % (m.group(1), m.group(2)) + s[m.end():]
-    while True:
-        m = _SQRT_IDX_RE.search(s)
-        if not m:
-            break
-        s = s[: m.start()] + "((%s)**(1/(%s)))" % (m.group(2), m.group(1)) + s[m.end():]
-    while True:
-        m = _SQRT_RE.search(s)
-        if not m:
-            break
-        s = s[: m.start()] + "sqrt(%s)" % m.group(1) + s[m.end():]
-    while True:
-        m = _FRAC_RE.search(s)
-        if not m:
-            break
-        s = s[: m.start()] + "((%s)/(%s))" % (m.group(1), m.group(2)) + s[m.end():]
+        s = new
 
     s = _SUP_BRACE_RE.sub(r"**(\1)", s)
     s = _SUP_PLAIN_RE.sub(r"**(\1)", s)
@@ -729,7 +798,11 @@ def _exprs_equal(a, b, rng: np.random.Generator) -> bool:
 def _pairs_equal(pa, pb, rng: np.random.Generator) -> bool:
     (la, ra), (lb, rb) = pa, pb
     if (ra is None) != (rb is None):
-        return False  # equation vs bare expression
+        # equation vs bare expression: the question asks for "the formula
+        # for X", so answering just the right-hand side is still correct
+        if ra is None:
+            return _exprs_equal(la, rb, rng)
+        return _exprs_equal(lb, ra, rng)
     if ra is None:
         return _exprs_equal(la, lb, rng)
     # equations: sides may be written in either order (lhs<->rhs)
@@ -737,22 +810,141 @@ def _pairs_equal(pa, pb, rng: np.random.Generator) -> bool:
            (_exprs_equal(la, rb, rng) and _exprs_equal(ra, lb, rng))
 
 
+# -------------------- rename-tolerant formula fallback ---------------------
+#
+# Models often answer with synonymous variable names ("R_t" for
+# "\text{Revenue}_t", "Net Working Capital_before" for "NWC_before"). Those
+# parse to different sympy symbols and fail the direct symbolic comparison
+# even though the formula is identical. Fallback: find a bijection between
+# the free symbols of both sides that makes the formulas equal AND whose
+# name pairs plausibly denote the same quantity (equal / substring /
+# acronym / short-subsequence). This keeps wrong formulas out: a renamed
+# match still requires the same expression structure, same operand order
+# (checked numerically) and related names on every mapped pair.
+
+_MAX_RENAME_SYMBOLS = 6  # 6! = 720 candidate bijections max
+
+
+def _is_subsequence(short: str, long: str) -> bool:
+    it = iter(long)
+    return all(c in it for c in short)
+
+
+def _acronym(name: str) -> str:
+    """Initials of the words of a symbol name: 'NetWorkingCapital_before'
+    -> 'nwc', 'PriorYearTaxRate' -> 'pytr'."""
+    parts = []
+    for chunk in name.split("_"):
+        parts += re.findall(r"[A-Z][a-z]*|[a-z]+|[0-9]+", chunk)
+    return "".join(p[0] for p in parts if p).lower()
+
+
+def _name_compatible(gold_name: str, pred_name: str) -> bool:
+    """Plausible 'same quantity' relation between two symbol names."""
+    a = re.sub(r"[^a-z0-9]", "", gold_name.lower())
+    b = re.sub(r"[^a-z0-9]", "", pred_name.lower())
+    if not a or not b:
+        return True  # nothing meaningful to compare (e.g. numeric-only name)
+    if a == b or a in b or b in a:
+        return True  # 'refund' ~ 'taxrefund', 'g' ~ 'growthrate'
+    short, long = (a, b) if len(a) <= len(b) else (b, a)
+    if len(short) <= 3 and _is_subsequence(short, long):
+        return True  # 'rt' ~ 'revenuet', 'wr' ~ 'workingcapitalrelease'
+    acr_a, acr_b = _acronym(gold_name), _acronym(pred_name)
+    if acr_a and acr_b and (acr_a == acr_b or acr_a in acr_b or acr_b in acr_a):
+        return True  # 'nwc' ~ 'NetWorkingCapital'
+    return bool(
+        (len(acr_a) <= 3 and _is_subsequence(acr_a, acr_b))
+        or (len(acr_b) <= 3 and _is_subsequence(acr_b, acr_a))
+    )
+
+
+def _mapped_pair_equal(pair_gold, pair_pred, mapping, rng) -> bool:
+    """Compare both sides of an equation pair after substituting a symbol
+    mapping into the gold side; sides may be swapped (lhs<->rhs)."""
+    (lg, rg), (lp, rp) = pair_gold, pair_pred
+    try:
+        lg2 = lg.subs(mapping)
+        rg2 = rg.subs(mapping) if rg is not None else None
+    except Exception:
+        return False
+    if _exprs_equal(lg2, lp, rng) and \
+            (rg2 is None or _exprs_equal(rg2, rp, rng)):
+        return True
+    if rg is not None:
+        return _exprs_equal(lg2, rp, rng) and _exprs_equal(rg2, lp, rng)
+    return False
+
+
+def _renames_equal(pair_gold, pair_pred, rng: np.random.Generator) -> bool:
+    """True when a name-plausible bijection of free symbols makes the two
+    (equation or bare) pairs equal."""
+    (lg, rg), (lp, rp) = pair_gold, pair_pred
+    if (rg is None) != (rp is None):
+        return False
+    # degenerate parses (e.g. a bare python tuple from "f(a, b)"-style
+    # LaTeX) cannot be compared symbolically
+    if not all(isinstance(e, sympy.Basic)
+               for e in (lg, rg, lp, rp) if e is not None):
+        return False
+    gold_syms = sorted(
+        (s for e in (lg, rg) for s in e.atoms(sympy.Symbol)
+         if s.name not in _KNOWN_CONSTANTS),
+        key=lambda s: s.name,
+    )
+    pred_syms = sorted(
+        (s for e in (lp, rp) for s in e.atoms(sympy.Symbol)
+         if s.name not in _KNOWN_CONSTANTS),
+        key=lambda s: s.name,
+    )
+    if not gold_syms or len(gold_syms) != len(pred_syms):
+        return False
+    if len(gold_syms) > _MAX_RENAME_SYMBOLS:
+        return False
+    for perm in itertools.permutations(pred_syms):
+        mapping = dict(zip(gold_syms, perm))
+        if not all(_name_compatible(g.name, p.name)
+                   for g, p in mapping.items()):
+            continue
+        if _mapped_pair_equal(pair_gold, pair_pred, mapping, rng):
+            return True
+    return False
+
+
+def _response_candidates(response: str) -> list[str]:
+    """The full reply plus its last line containing '=' (models sometimes
+    prepend prose like 'The formula is: ...' despite the instructions)."""
+    cands = [response]
+    eq_lines = [ln.strip() for ln in response.splitlines()
+                if "=" in ln and ln.strip()]
+    if eq_lines and eq_lines[-1] != response.strip():
+        cands.append(eq_lines[-1])
+    return cands
+
+
 def grade_formula(item: dict, response: str) -> bool:
     gold = item["messages"][1]["content"]
-    if normalize_formula(gold) == normalize_formula(response):
-        return True
 
     rng = np.random.default_rng(0)
-    # Two parsing interpretations: multi-letter names kept whole ("sigma",
-    # "EMA_prev") and names split into single letters ("kP" -> k*P). The same
-    # interpretation is applied to both sides; equality in either wins.
-    for split_mode in (False, True):
-        pair_gold = _expr_pair(gold, split_mode)
-        pair_pred = _expr_pair(response, split_mode)
-        if pair_gold is None or pair_pred is None:
-            continue  # symbolic parsing impossible for this interpretation
-        if _pairs_equal(pair_gold, pair_pred, rng):
+    for cand in _response_candidates(response):
+        if normalize_formula(gold) == normalize_formula(cand):
             return True
+        # Two parsing interpretations: multi-letter names kept whole ("sigma",
+        # "EMA_prev") and names split into single letters ("kP" -> k*P). The
+        # same interpretation is applied to both sides; equality in either
+        # wins.
+        for split_mode in (False, True):
+            pair_gold = _expr_pair(gold, split_mode)
+            pair_pred = _expr_pair(cand, split_mode)
+            if pair_gold is None or pair_pred is None:
+                continue  # symbolic parsing impossible for this interpretation
+            if _pairs_equal(pair_gold, pair_pred, rng):
+                return True
+            # Rename-tolerant fallback only for whole names: with split
+            # names the symbol identities are meaningless, so a "rename"
+            # there would accept any structurally equal formula.
+            if not split_mode and _renames_equal(pair_gold, pair_pred, rng):
+                return True
     return False
 
 
