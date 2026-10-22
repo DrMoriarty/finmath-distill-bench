@@ -1191,6 +1191,39 @@ def sample_items(items: list[dict], limit: int | None, rng: random.Random) -> li
     return [items[i] for i in rng.sample(range(len(items)), limit)]
 
 
+def interleave_plan(plan: list[tuple[str, list[dict]]]) -> list[tuple[str, dict]]:
+    """Round-robin the per-dataset question lists: one question from each
+    dataset in turn (1st of A, 1st of B, 1st of C, 2nd of A, ...) instead of
+    exhausting the datasets one by one. Shorter datasets simply drop out of
+    the rotation once exhausted."""
+    grouped = [[(name, item) for item in items] for name, items in plan]
+    return [
+        pair
+        for row in itertools.zip_longest(*grouped)
+        for pair in row
+        if pair is not None
+    ]
+
+
+def format_duration(seconds: float) -> str:
+    """Human-readable duration with at most two significant units
+    ('2d 5h', '3h 12m', '7m 45s', '42s'); '0s' for zero/negative input."""
+    seconds = max(int(seconds), 0)
+    days, rem = divmod(seconds, 86400)
+    hours, rem = divmod(rem, 3600)
+    minutes, secs = divmod(rem, 60)
+    units = [(days, "d"), (hours, "h"), (minutes, "m"), (secs, "s")]
+    # take the largest non-zero unit and the next one after it
+    for i, (value, suffix) in enumerate(units):
+        if value:
+            second = units[i + 1] if i + 1 < len(units) else None
+            parts = [f"{value}{suffix}"]
+            if second is not None:
+                parts.append(f"{second[0]}{second[1]}")
+            return " ".join(parts)
+    return "0s"
+
+
 async def run(args: argparse.Namespace) -> int:
     rng = random.Random(args.seed)
 
@@ -1235,6 +1268,34 @@ async def run(args: argparse.Namespace) -> int:
     done_counter = {"done": 0}
     skipped_counter = {"skipped": 0}
     correct_counter = {"correct": 0}
+    started = time.monotonic()
+
+    results = {
+        name: {"correct": 0, "skipped": 0, "done": 0, "mismatches": [],
+               "error_examples": [], "total": len(items)}
+        for name, items in plan
+    }
+    ds_names = [name for name, _ in plan]
+
+    def progress_line() -> str:
+        # per-dataset breakdown: done = graded + skipped for that dataset
+        parts = [
+            f"{name}: {results[name]['correct']} ok/"
+            f"{results[name]['done'] - results[name]['correct'] - results[name]['skipped']} wrong"
+            for name in ds_names
+        ]
+        # skipped = request errors after all retries; excluded from the
+        # graded total, so they never count towards the accuracy
+        done = done_counter["done"]
+        eta = ""
+        if done:
+            remaining = (time.monotonic() - started) / done * (total - done)
+            eta = f" — ETA: {format_duration(remaining)}"
+        return (f"\rprogress: {done}/{total} — "
+                f"correct: {correct_counter['correct']}, "
+                f"wrong: {done - correct_counter['correct'] - skipped_counter['skipped']}, "
+                f"skipped: {skipped_counter['skipped']} — "
+                f"{' | '.join(parts)}{eta}")
 
     async def worker(session, name, item, results):
         async with sem:
@@ -1267,28 +1328,15 @@ async def run(args: argparse.Namespace) -> int:
                          item["messages"][1]["content"][:120],
                          response[:160])
                     )
+            results[name]["done"] += 1
             done_counter["done"] += 1
-            # skipped = request errors after all retries; excluded from the
-            # graded total, so they never count towards the accuracy
-            print(f"\rprogress: {done_counter['done']}/{total} — "
-                  f"correct: {correct_counter['correct']}, "
-                  f"wrong: {done_counter['done'] - correct_counter['correct'] - skipped_counter['skipped']}, "
-                  f"skipped: {skipped_counter['skipped']}",
-                  end="", flush=True)
+            print(progress_line(), end="", flush=True)
 
-    results = {
-        name: {"correct": 0, "skipped": 0, "mismatches": [], "error_examples": [],
-               "total": len(items)}
-        for name, items in plan
-    }
-
-    started = time.monotonic()
     connector = aiohttp.TCPConnector(limit=max(args.concurrency * 2, 10))
     async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
         tasks = []
-        for name, items in plan:
-            for item in items:
-                tasks.append(asyncio.create_task(worker(session, name, item, results)))
+        for name, item in interleave_plan(plan):
+            tasks.append(asyncio.create_task(worker(session, name, item, results)))
         try:
             await asyncio.gather(*tasks)
         except FatalEndpointError as exc:
