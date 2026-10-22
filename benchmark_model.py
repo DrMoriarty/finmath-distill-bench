@@ -1267,7 +1267,6 @@ async def run(args: argparse.Namespace) -> int:
     timeout = aiohttp.ClientTimeout(total=args.timeout)
     done_counter = {"done": 0}
     skipped_counter = {"skipped": 0}
-    correct_counter = {"correct": 0}
     started = time.monotonic()
 
     results = {
@@ -1280,8 +1279,8 @@ async def run(args: argparse.Namespace) -> int:
     def progress_line() -> str:
         # per-dataset breakdown: done = graded + skipped for that dataset
         parts = [
-            f"{name}: {results[name]['correct']} ok/"
-            f"{results[name]['done'] - results[name]['correct'] - results[name]['skipped']} wrong"
+            f"{name}: {results[name]['correct']} / "
+            f"{results[name]['done'] - results[name]['correct'] - results[name]['skipped']}"
             for name in ds_names
         ]
         # skipped = request errors after all retries; excluded from the
@@ -1291,9 +1290,7 @@ async def run(args: argparse.Namespace) -> int:
         if done:
             remaining = (time.monotonic() - started) / done * (total - done)
             eta = f" — ETA: {format_duration(remaining)}"
-        return (f"\rprogress: {done}/{total} — "
-                f"correct: {correct_counter['correct']}, "
-                f"wrong: {done - correct_counter['correct'] - skipped_counter['skipped']}, "
+        return (f"\rprogress: {done}/{total}, "
                 f"skipped: {skipped_counter['skipped']} — "
                 f"{' | '.join(parts)}{eta}")
 
@@ -1321,7 +1318,6 @@ async def run(args: argparse.Namespace) -> int:
             if response is not None:
                 correct = await asyncio.to_thread(grade, item, response)
                 results[name]["correct"] += int(correct)
-                correct_counter["correct"] += int(correct)
                 if not correct:
                     results[name]["mismatches"].append(
                         (item.get("id", "?"),
