@@ -1074,6 +1074,28 @@ def grade(item: dict, response: str) -> bool:
         return False
 
 
+# The grader runs sympy/numpy on the model's reply. Some replies (very long
+# or symbolically nasty LaTeX) can make a comparison take a very long time
+# without raising. Since grading runs in a worker thread, a single such reply
+# would otherwise block that thread forever and, with low concurrency, freeze
+# the whole benchmark. Cap it: a reply that does not grade within the timeout
+# is simply treated as "not correct", matching the grader's own error handling.
+GRADE_TIMEOUT = 60.0
+
+
+async def _grade_timed(item: dict, response: str, timeout: float) -> bool:
+    """Grade in a worker thread, bounded by a wall-clock timeout.
+
+    A response that makes the grader slow/hang is treated as "not correct"
+    so one pathological answer can never stall the run."""
+    loop = asyncio.get_running_loop()
+    fut = loop.run_in_executor(None, grade, item, response)
+    try:
+        return await asyncio.wait_for(fut, timeout)
+    except asyncio.TimeoutError:
+        return False
+
+
 # --------------------------------------------------------------------------
 # Model endpoint
 # --------------------------------------------------------------------------
@@ -1316,7 +1338,7 @@ async def run(args: argparse.Namespace) -> int:
                 response = None
                 skipped_counter["skipped"] += 1
             if response is not None:
-                correct = await asyncio.to_thread(grade, item, response)
+                correct = await _grade_timed(item, response, GRADE_TIMEOUT)
                 results[name]["correct"] += int(correct)
                 if not correct:
                     results[name]["mismatches"].append(
