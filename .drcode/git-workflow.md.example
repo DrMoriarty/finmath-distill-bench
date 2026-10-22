@@ -1,0 +1,18 @@
+<!-- drcode git workflow rules (template).
+
+     ACTIVATION: rename this file to `git-workflow.md` (keep it in the
+     project's `.drcode/` directory) and edit the rules below. drcode
+     scaffolds this template on every start, but NEVER overwrites it.
+
+     What it gives you: when present, these rules REPLACE the built-in
+     "never commit to git" instruction in the coding agents' system
+     prompts (commits become part of the workflow) and are appended to
+     the tester's prompt. Write plain prose — branching model, commit
+     conventions, PR rules — the agents follow it literally. -->
+
+# Git workflow rules
+
+- Work on a feature branch named `task/<id>`; never commit directly to `main`.
+- Commit messages: imperative mood, reference the task id — `feat: add X (#<id>)`.
+- Keep commits atomic: no unrelated changes in one commit.
+- After development, push the branch and open a PR (`gh pr create`).

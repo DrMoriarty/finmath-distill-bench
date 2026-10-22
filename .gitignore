@@ -1,3 +1,6 @@
-.drcode/
 __pycache__
 .venv
+
+.drcode/tasks/
+.drcode/settings.json
+.drcode/github_state.json
