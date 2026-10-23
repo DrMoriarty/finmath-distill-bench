@@ -1,0 +1,6 @@
+endpoint : http://127.0.0.1:8897/v1/chat/completions
+model    : m
+questions: 5 (enum=5)
+workers  : 1
+temp     : 0
+

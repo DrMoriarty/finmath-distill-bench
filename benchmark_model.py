@@ -50,13 +50,19 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import concurrent.futures
+import faulthandler
 import itertools
 import json
 import keyword
+import multiprocessing
+import os
 import random
 import re
+import signal
 import sys
 import time
+import traceback
 from pathlib import Path
 
 import warnings
@@ -856,10 +862,50 @@ def _expr_pair(latex: str, split_symbols_mode: bool = False):
 
 _KNOWN_CONSTANTS = {"pi", "E", "I", "oo", "NaN", "zoo"}
 
+# Complexity gate: no gold formula in the datasets contains an Integer with
+# abs value > 1e6, and evaluating one (e.g. 10**(10**18), a 3-node tree) is
+# C-level big-integer arithmetic that holds the GIL and cannot be interrupted.
+# Any such integer in either expression means we refuse to evaluate/simplify.
+_MAX_SAFE_INTEGER = 10**6
+
+
+def _has_huge_integer(*exprs) -> bool:
+    """True when any Integer with abs(value) > _MAX_SAFE_INTEGER appears in
+    any of the expression trees. Pure tree walk: evaluates nothing."""
+    for e in exprs:
+        if e is None or not isinstance(e, sympy.Basic):
+            continue
+        try:
+            for node in sympy.preorder_traversal(e):
+                if isinstance(node, sympy.Integer) \
+                        and abs(int(node)) > _MAX_SAFE_INTEGER:
+                    return True
+        except Exception:
+            return True  # unwalkable tree: refuse to evaluate it
+    return False
+
+
+def _safe_count_ops(expr) -> int:
+    """count_ops that never raises; -1 for non-expression sides."""
+    if expr is None or not isinstance(expr, sympy.Basic):
+        return -1
+    try:
+        return int(sympy.count_ops(expr))
+    except Exception:
+        return -1
+
+
+def _pair_ops(pair) -> int:
+    """Total count_ops of an (lhs, rhs) pair parsed in one split mode."""
+    lhs, rhs = pair
+    return _safe_count_ops(lhs) + max(_safe_count_ops(rhs), 0)
+
 
 def _numeric_equal(a, b, rng: np.random.Generator, trials: int = 6) -> bool | None:
     """Sample random positive values for all free symbols and compare both
     expressions numerically. None means 'no reliable conclusion'."""
+    if _has_huge_integer(a, b):
+        return None  # numeric evaluation could run effectively forever
     symbols = sorted(
         (s for e in (a, b) for s in e.free_symbols if s.name not in _KNOWN_CONSTANTS),
         key=lambda s: s.name,
@@ -886,6 +932,10 @@ def _numeric_equal(a, b, rng: np.random.Generator, trials: int = 6) -> bool | No
 
 
 def _exprs_equal(a, b, rng: np.random.Generator) -> bool:
+    if _has_huge_integer(a, b):
+        # simplify/equals on huge-integer trees can hang for hours and hold
+        # the GIL; treat as "no reliable conclusion" -> not equal
+        return False
     numeric = _numeric_equal(a, b, rng)
     if numeric is not None:
         return numeric
@@ -996,18 +1046,25 @@ def _renames_equal(pair_gold, pair_pred, rng: np.random.Generator) -> bool:
                for e in (lg, rg, lp, rp) if e is not None):
         return False
     gold_syms = sorted(
-        (s for e in (lg, rg) for s in e.atoms(sympy.Symbol)
-         if s.name not in _KNOWN_CONSTANTS),
+        (s for e in (lg, rg) if e is not None
+         for s in e.atoms(sympy.Symbol) if s.name not in _KNOWN_CONSTANTS),
         key=lambda s: s.name,
     )
     pred_syms = sorted(
-        (s for e in (lp, rp) for s in e.atoms(sympy.Symbol)
-         if s.name not in _KNOWN_CONSTANTS),
+        (s for e in (lp, rp) if e is not None
+         for s in e.atoms(sympy.Symbol) if s.name not in _KNOWN_CONSTANTS),
         key=lambda s: s.name,
     )
     if not gold_syms or len(gold_syms) != len(pred_syms):
         return False
     if len(gold_syms) > _MAX_RENAME_SYMBOLS:
+        return False
+    # symbol->symbol subs() never changes count_ops, so a correct bijection
+    # must preserve the per-side node counts; skip the (up to 720) expensive
+    # comparisons when the structures already differ in size.
+    if _safe_count_ops(lg) != _safe_count_ops(lp):
+        return False
+    if rg is not None and _safe_count_ops(rg) != _safe_count_ops(rp):
         return False
     for perm in itertools.permutations(pred_syms):
         mapping = dict(zip(gold_syms, perm))
@@ -1046,6 +1103,15 @@ def grade_formula(item: dict, response: str) -> bool:
             pair_pred = _expr_pair(cand, split_mode)
             if pair_gold is None or pair_pred is None:
                 continue  # symbolic parsing impossible for this interpretation
+            # Complexity gate: a prediction with vastly more nodes than the
+            # gold formula (e.g. a 100+-node pathological reply against a
+            # ~10-node gold) cannot be an equal formula written differently;
+            # skip the expensive symbolic comparison entirely. Threshold is
+            # generous so expanded-vs-factored forms of the same formula
+            # ((a+b)**2 vs a**2+2*a*b+b**2) still pass. Counts are computed
+            # within this same split mode.
+            if _pair_ops(pair_pred) > 4 * _pair_ops(pair_gold) + 20:
+                continue
             if _pairs_equal(pair_gold, pair_pred, rng):
                 return True
             # Rename-tolerant fallback only for whole names: with split
@@ -1076,24 +1142,132 @@ def grade(item: dict, response: str) -> bool:
 
 # The grader runs sympy/numpy on the model's reply. Some replies (very long
 # or symbolically nasty LaTeX) can make a comparison take a very long time
-# without raising. Since grading runs in a worker thread, a single such reply
-# would otherwise block that thread forever and, with low concurrency, freeze
-# the whole benchmark. Cap it: a reply that does not grade within the timeout
-# is simply treated as "not correct", matching the grader's own error handling.
+# without raising — and big-integer arithmetic inside sympy holds the GIL and
+# cannot be interrupted by signals, so a worker *thread* can hang forever and,
+# with low concurrency, freeze the whole benchmark (it also blocks interpreter
+# shutdown, making Ctrl-C useless). Cap it with a real process boundary:
+# grading runs in a ProcessPoolExecutor, and on timeout the whole pool is
+# killed and recreated, so a stuck worker cannot poison later gradings. A
+# reply that does not grade within the timeout is treated as "not correct",
+# matching the grader's own error handling.
 GRADE_TIMEOUT = 60.0
+
+# spawn (not fork): the parent runs an asyncio event loop with helper threads,
+# and forking a multi-threaded process can deadlock the child. Spawned workers
+# import this module (module-level sympy/numpy imports only) and are reused
+# across gradings; the pool is recreated only after a timeout/crash.
+_GRADER_MP_CONTEXT = multiprocessing.get_context("spawn")
+
+# Counters/observability shared between the grading machinery, the watchdog
+# and the progress line.
+_GRADE_STATS = {
+    "slow": 0,       # grades that took longer than GRADE_SLOW_SECONDS
+    "timeouts": 0,   # grades killed by the process timeout
+    "inflight": 0,   # grades currently running in pool workers
+}
+_GRADE_SLOW_SECONDS = 10.0
+_GRADER_POOL = None
+
+
+def _get_grader_pool() -> concurrent.futures.ProcessPoolExecutor:
+    global _GRADER_POOL
+    if _GRADER_POOL is None:
+        # a broken pool surfaces as BrokenProcessPool on submit(); callers
+        # recreate it there — no eager health check needed
+        _GRADER_POOL = concurrent.futures.ProcessPoolExecutor(
+            max_workers=min(32, (os.cpu_count() or 1) + 4),
+            mp_context=_GRADER_MP_CONTEXT,
+        )
+    return _GRADER_POOL
+
+
+def _grader_pool_size() -> int:
+    """Number of live pool worker processes (0 when no pool exists)."""
+    if _GRADER_POOL is None:
+        return 0
+    return len(getattr(_GRADER_POOL, "_processes", {}) or {})
+
+
+def _kill_grader_pool() -> None:
+    """Kill the grading pool and all its worker processes.
+
+    Called after a timeout (a worker is stuck in uninterruptible C-level
+    arithmetic — it must be SIGKILLed, not joined) and on shutdown, so that
+    the concurrent.futures atexit join can never block on a stuck worker."""
+    global _GRADER_POOL
+    pool, _GRADER_POOL = _GRADER_POOL, None
+    if pool is None:
+        return
+    for proc in list(getattr(pool, "_processes", {}).values()):
+        try:
+            proc.kill()
+        except Exception:
+            pass
+    try:
+        pool.shutdown(wait=False, cancel_futures=True)
+    except Exception:
+        pass
 
 
 async def _grade_timed(item: dict, response: str, timeout: float) -> bool:
-    """Grade in a worker thread, bounded by a wall-clock timeout.
+    """Grade in a pool worker *process*, bounded by a wall-clock timeout.
 
-    A response that makes the grader slow/hang is treated as "not correct"
-    so one pathological answer can never stall the run."""
+    On timeout the worker process is terminated with the whole pool and a
+    fresh pool is created for subsequent gradings, so one pathological answer
+    can never stall the run. Timed-out grades are scored as "not correct"."""
     loop = asyncio.get_running_loop()
-    fut = loop.run_in_executor(None, grade, item, response)
+    qid = item.get("id", "?")
+    ds = item.get("type", "?")
+    started = time.monotonic()
+    _GRADE_STATS["inflight"] += 1
     try:
-        return await asyncio.wait_for(fut, timeout)
-    except asyncio.TimeoutError:
+        for attempt in range(2):
+            try:
+                pool = _get_grader_pool()
+                fut = loop.run_in_executor(pool, grade, item, response)
+                return await asyncio.wait_for(fut, timeout)
+            except asyncio.TimeoutError:
+                _GRADE_STATS["timeouts"] += 1
+                # wait_for only cancels the asyncio wrapper; the worker keeps
+                # running sympy forever -> SIGKILL the whole pool
+                _kill_grader_pool()
+                print(
+                    f"\n[grade] TIMEOUT after {timeout:.0f}s, grader worker "
+                    f"killed; qid={qid} dataset={ds}",
+                    file=sys.stderr, flush=True,
+                )
+                return False
+            except concurrent.futures.process.BrokenProcessPool as exc:
+                _kill_grader_pool()
+                if attempt == 0:
+                    # this grade was likely an innocent bystander of a
+                    # sibling timeout-kill: retry once in a fresh pool
+                    continue
+                print(
+                    f"\n[grade] grader worker died ({exc}); pool recreated; "
+                    f"qid={qid} dataset={ds}",
+                    file=sys.stderr, flush=True,
+                )
+                return False
         return False
+    except Exception as exc:
+        # never let a grading bug stall the run, but don't swallow it silently
+        print(
+            f"\n[grade] grader error ({type(exc).__name__}: {exc}); "
+            f"scored as not correct; qid={qid} dataset={ds}",
+            file=sys.stderr, flush=True,
+        )
+        return False
+    finally:
+        _GRADE_STATS["inflight"] -= 1
+        elapsed = time.monotonic() - started
+        if elapsed > _GRADE_SLOW_SECONDS:
+            _GRADE_STATS["slow"] += 1
+            print(
+                f"\n[grade] slow grade took {elapsed:.1f}s; "
+                f"qid={qid} dataset={ds}",
+                file=sys.stderr, flush=True,
+            )
 
 
 # --------------------------------------------------------------------------
@@ -1112,6 +1286,47 @@ def build_base_url(host: str) -> str:
 class FatalEndpointError(RuntimeError):
     """Endpoint rejection that will not get better with retries (auth, bad
     request, wrong path) — aborts the whole benchmark run."""
+
+
+class WatchdogStall(RuntimeError):
+    """The run stopped making progress (done-counter frozen for minutes) —
+    the watchdog dumps diagnostics and aborts with a non-zero exit code."""
+
+
+# Watchdog tuning: poll the done-counter every 30s; a run that has not
+# completed a single question for WATCHDOG_STALL_SECONDS is considered stalled
+# (process-bounded grading should make real stalls nearly impossible, so a
+# generous threshold keeps false positives away while still catching hangs).
+WATCHDOG_POLL_SECONDS = 30.0
+WATCHDOG_STALL_SECONDS = 420.0
+
+
+def _dump_stall_diagnostics(inflight: dict, stalled_for: float) -> None:
+    """Dump everything needed to debug a stalled run to stderr: thread
+    stacks, asyncio task stacks, in-flight question ids and grader state."""
+    print(
+        f"\nwatchdog: no question finished for {stalled_for:.0f}s "
+        f"(> {WATCHDOG_STALL_SECONDS:.0f}s) — dumping diagnostics",
+        file=sys.stderr, flush=True,
+    )
+    print(
+        f"watchdog: grader pool workers={_grader_pool_size()} "
+        f"busy_grades={_GRADE_STATS['inflight']} "
+        f"slow_grades={_GRADE_STATS['slow']} "
+        f"grade_timeouts={_GRADE_STATS['timeouts']}",
+        file=sys.stderr, flush=True,
+    )
+    if inflight:
+        print("watchdog: in-flight questions:", file=sys.stderr, flush=True)
+        for qid, ds in list(inflight.values()):
+            print(f"  qid={qid} dataset={ds}", file=sys.stderr, flush=True)
+    print("watchdog: thread stacks:", file=sys.stderr, flush=True)
+    faulthandler.dump_traceback(file=sys.stderr)
+    print("watchdog: asyncio task stacks:", file=sys.stderr, flush=True)
+    for task in asyncio.all_tasks():
+        print(f"  task {task.get_name()!r}:", file=sys.stderr, flush=True)
+        for frame in (task.get_stack() or []):
+            traceback.print_stack(frame, file=sys.stderr)
 
 
 async def ask_model(
@@ -1247,6 +1462,11 @@ def format_duration(seconds: float) -> str:
 
 
 async def run(args: argparse.Namespace) -> int:
+    # asyncio.Runner installs its own SIGINT handler for the duration of
+    # asyncio.run(); override it so the two-phase handler below is active
+    # while the benchmark is running (main() keeps one installed for the
+    # phases outside the event loop; Runner restores it on exit).
+    signal.signal(signal.SIGINT, _sigint_handler)
     rng = random.Random(args.seed)
 
     requested = (
@@ -1289,6 +1509,8 @@ async def run(args: argparse.Namespace) -> int:
     timeout = aiohttp.ClientTimeout(total=args.timeout)
     done_counter = {"done": 0}
     skipped_counter = {"skipped": 0}
+    # task -> (question id, dataset), used by the stall watchdog
+    inflight = {}
     started = time.monotonic()
 
     results = {
@@ -1312,55 +1534,107 @@ async def run(args: argparse.Namespace) -> int:
         if done:
             remaining = (time.monotonic() - started) / done * (total - done)
             eta = f" — ETA: {format_duration(remaining)}"
+        # grader observability: live worker/busy counts and slow/timeout
+        # counters turn silent degradation into something visible in-flight
+        grader = (f"grader: {_GRADE_STATS['inflight']}/{_grader_pool_size()} "
+                  f"busy, slow(>{_GRADE_SLOW_SECONDS:.0f}s): "
+                  f"{_GRADE_STATS['slow']}, timeouts: {_GRADE_STATS['timeouts']}")
         return (f"\rprogress: {done}/{total}, "
                 f"skipped: {skipped_counter['skipped']} — "
-                f"{' | '.join(parts)}{eta}")
+                f"{' | '.join(parts)} — [{grader}]{eta}")
 
     async def worker(session, name, item, results):
-        async with sem:
-            try:
-                response = await ask_model(
-                    session, url, headers, args.model,
-                    build_prompt(item), args.max_tokens, args.timeout,
-                    temperature=args.temperature,
-                    retries=args.retries,
-                    system=SYSTEM_PROMPTS.get(name),
-                )
-            except FatalEndpointError:
-                raise
-            except Exception as exc:
-                # question exhausted all retries: skip it and exclude it from
-                # the accuracy denominator
-                results[name]["skipped"] += 1
-                results[name].setdefault("error_examples", []).append(
-                    (item.get("id", "?"), str(exc)[:200])
-                )
-                response = None
-                skipped_counter["skipped"] += 1
-            if response is not None:
-                correct = await _grade_timed(item, response, GRADE_TIMEOUT)
-                results[name]["correct"] += int(correct)
-                if not correct:
-                    results[name]["mismatches"].append(
-                        (item.get("id", "?"),
-                         item["messages"][1]["content"][:120],
-                         response[:160])
+        task = asyncio.current_task()
+        inflight[task] = (item.get("id", "?"), name)
+        try:
+            async with sem:
+                try:
+                    response = await ask_model(
+                        session, url, headers, args.model,
+                        build_prompt(item), args.max_tokens, args.timeout,
+                        temperature=args.temperature,
+                        retries=args.retries,
+                        system=SYSTEM_PROMPTS.get(name),
                     )
-            results[name]["done"] += 1
-            done_counter["done"] += 1
-            print(progress_line(), end="", flush=True)
+                except FatalEndpointError:
+                    raise
+                except Exception as exc:
+                    # question exhausted all retries: skip it and exclude it
+                    # from the accuracy denominator
+                    results[name]["skipped"] += 1
+                    results[name].setdefault("error_examples", []).append(
+                        (item.get("id", "?"), str(exc)[:200])
+                    )
+                    response = None
+                    skipped_counter["skipped"] += 1
+                if response is not None:
+                    correct = await _grade_timed(item, response, GRADE_TIMEOUT)
+                    results[name]["correct"] += int(correct)
+                    if not correct:
+                        results[name]["mismatches"].append(
+                            (item.get("id", "?"),
+                             item["messages"][1]["content"][:120],
+                             response[:160])
+                        )
+                results[name]["done"] += 1
+                done_counter["done"] += 1
+                print(progress_line(), end="", flush=True)
+        finally:
+            inflight.pop(task, None)
+
+    async def watchdog():
+        """Abort the run when nothing finishes for WATCHDOG_STALL_SECONDS:
+        dump all stacks + in-flight questions, then raise WatchdogStall."""
+        last_done = done_counter["done"]
+        last_change = time.monotonic()
+        while True:
+            await asyncio.sleep(WATCHDOG_POLL_SECONDS)
+            done = done_counter["done"]
+            now = time.monotonic()
+            if done != last_done:
+                last_done, last_change = done, now
+                continue
+            stalled_for = now - last_change
+            if stalled_for >= WATCHDOG_STALL_SECONDS:
+                _dump_stall_diagnostics(inflight, stalled_for)
+                raise WatchdogStall(
+                    f"no progress for {stalled_for:.0f}s "
+                    f"(done={done}/{total})")
 
     connector = aiohttp.TCPConnector(limit=max(args.concurrency * 2, 10))
     async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
         tasks = []
         for name, item in interleave_plan(plan):
             tasks.append(asyncio.create_task(worker(session, name, item, results)))
+        workers_task = asyncio.gather(*tasks)
+        watchdog_task = asyncio.create_task(watchdog(), name="watchdog")
         try:
-            await asyncio.gather(*tasks)
+            done, _pending = await asyncio.wait(
+                {workers_task, watchdog_task},
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+        finally:
+            # whichever way we leave this block: stop the watchdog, cancel
+            # (and reap) any still-running workers, and make sure no grader
+            # worker process survives into interpreter shutdown (a killed/
+            # stuck pool would block the concurrent.futures atexit join)
+            watchdog_task.cancel()
+            workers_task.cancel()
+            await asyncio.gather(watchdog_task, workers_task,
+                                 return_exceptions=True)
+            _kill_grader_pool()
+
+        if watchdog_task in done and not watchdog_task.cancelled() \
+                and watchdog_task.exception() is not None:
+            exc = watchdog_task.exception()
+            if isinstance(exc, WatchdogStall):
+                print(f"\nfatal: watchdog aborted the run: {exc}",
+                      file=sys.stderr)
+                return 3
+            raise exc  # unexpected watchdog crash
+        try:
+            workers_task.result()  # propagates FatalEndpointError and crashes
         except FatalEndpointError as exc:
-            for t in tasks:
-                t.cancel()
-            await asyncio.gather(*tasks, return_exceptions=True)
             print(f"\nfatal: {exc}", file=sys.stderr)
             return 1
     elapsed = time.monotonic() - started
@@ -1455,12 +1729,40 @@ def parse_args(argv=None) -> argparse.Namespace:
     return args
 
 
+_SIGINT_STATE = {"count": 0}
+
+
+def _sigint_handler(signum, frame):
+    """First Ctrl-C: graceful cancel (raise KeyboardInterrupt, as the default
+    handler does — asyncio.run then cancels all tasks; the grader pool is
+    killed in run()'s cleanup so shutdown cannot block on a stuck worker).
+    Second Ctrl-C: dump the stacks of ALL threads and exit immediately."""
+    _SIGINT_STATE["count"] += 1
+    if _SIGINT_STATE["count"] == 1:
+        raise KeyboardInterrupt
+    print("\nsecond SIGINT: dumping thread stacks and exiting",
+          file=sys.stderr, flush=True)
+    faulthandler.dump_traceback(file=sys.stderr)
+    os._exit(130)
+
+
 def main() -> int:
+    signal.signal(signal.SIGINT, _sigint_handler)
+    # Crash diagnostics for silent hangs: if the process stops making
+    # progress (stuck C-level sympy arithmetic, event-loop stall, ...),
+    # dump the stacks of all threads to stderr every 10 minutes.
+    faulthandler.dump_traceback_later(600, repeat=True, file=sys.stderr)
     try:
         return asyncio.run(run(parse_args()))
     except KeyboardInterrupt:
         print("\ninterrupted", file=sys.stderr)
         return 130
+    finally:
+        # guarantee no grader worker process can be joined at interpreter
+        # exit (concurrent.futures' atexit hook would otherwise block on a
+        # stuck worker and make even the graceful path hang)
+        _kill_grader_pool()
+        faulthandler.cancel_dump_traceback_later()
 
 
 if __name__ == "__main__":

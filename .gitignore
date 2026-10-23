@@ -4,3 +4,4 @@ __pycache__
 .drcode/tasks/
 .drcode/settings.json
 .drcode/github_state.json
+.drcode/worktrees/
