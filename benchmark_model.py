@@ -1670,29 +1670,64 @@ async def run(args: argparse.Namespace) -> int:
     print(f" — finished in {elapsed:.1f}s\n")
 
     # ------------------------------ report --------------------------------
-    # "graded" excludes questions skipped after exhausting all retries, so
-    # they never affect the accuracy.
+    # Two score blocks are printed:
+    #   * "graded" — skipped questions (request errors after exhausting all
+    #     retries) are excluded from the denominator, so they never affect
+    #     the accuracy;
+    #   * "skipped = incorrect" — every skipped question counts as wrong,
+    #     giving a lower bound that cannot silently benefit from drops.
+    def print_score_table(count_skipped_as_wrong: bool) -> tuple:
+        header = ("correct/total" if count_skipped_as_wrong
+                  else "correct/graded")
+        print(f"{'dataset':<12}{header:>18}{'accuracy':>12}"
+              f"{'' if count_skipped_as_wrong else 'skipped':>9}")
+        print("-" * 60)
+        s_correct = s_total = s_skipped = 0
+        for name, res in results.items():
+            correct, total_ds, skipped = (res["correct"], res["total"],
+                                          res["skipped"])
+            denom = total_ds if count_skipped_as_wrong else total_ds - skipped
+            pct = 100.0 * correct / denom if denom else 0.0
+            suffix = "" if count_skipped_as_wrong else f"{skipped:>9}"
+            print(f"{name:<12}{correct:>10}/{denom:<7}"
+                  f"{pct:>11.2f}%{suffix}")
+            s_correct += correct
+            s_total += total_ds
+            s_skipped += skipped
+        print("-" * 60)
+        denom_total = (s_total if count_skipped_as_wrong
+                       else s_total - s_skipped)
+        pct = 100.0 * s_correct / denom_total if denom_total else 0.0
+        print(f"{'TOTAL':<12}{s_correct:>10}/{denom_total:<7}"
+              f"{pct:>11.2f}%{'' if count_skipped_as_wrong else s_skipped:>9}")
+        return s_correct, s_total, s_skipped
+
     print("=" * 60)
-    print(f"{'dataset':<12}{'correct/graded':>18}{'accuracy':>12}{'skipped':>9}")
-    print("-" * 60)
-    sum_correct = sum_total = sum_skipped = 0
-    for name, res in results.items():
-        correct, total_ds, skipped = res["correct"], res["total"], res["skipped"]
-        graded = total_ds - skipped
-        pct = 100.0 * correct / graded if graded else 0.0
-        print(f"{name:<12}{correct:>10}/{graded:<7}{pct:>11.2f}%{skipped:>9}")
-        sum_correct += correct
-        sum_total += total_ds
-        sum_skipped += skipped
-    print("-" * 60)
-    graded_total = sum_total - sum_skipped
-    pct = 100.0 * sum_correct / graded_total if graded_total else 0.0
-    print(f"{'TOTAL':<12}{sum_correct:>10}/{graded_total:<7}"
-          f"{pct:>11.2f}%{sum_skipped:>9}")
+    print("score (graded — skipped questions excluded):")
+    sum_correct, sum_total, sum_skipped = print_score_table(False)
+    if sum_skipped:
+        print()
+        print("score (skipped counted as incorrect):")
+        print_score_table(True)
     print("=" * 60)
     if sum_skipped:
+        attempts = (f"{args.retries} retry"
+                    if args.retries == 1 else f"{args.retries} retries")
         print(f"note: {sum_skipped} question(s) skipped after "
-              f"{args.retries} retries and excluded from the score")
+              f"{attempts} and excluded from the graded score")
+        skip_rate = 100.0 * sum_skipped / sum_total if sum_total else 0.0
+        if skip_rate > 2.0:
+            print(f"WARNING: {skip_rate:.1f}% of questions were skipped "
+                  f"({sum_skipped}/{sum_total}); the graded score above is "
+                  f"computed over the surviving {sum_total - sum_skipped} "
+                  f"only and may be biased upward — see the "
+                  f"'skipped counted as incorrect' block",
+                  file=sys.stderr)
+            print(f"WARNING: {skip_rate:.1f}% of questions were skipped "
+                  f"({sum_skipped}/{sum_total}); the graded score above is "
+                  f"computed over the surviving {sum_total - sum_skipped} "
+                  f"only and may be biased upward — see the "
+                  f"'skipped counted as incorrect' block")
 
     if not args.verbose:
         for name, res in results.items():
@@ -1755,6 +1790,17 @@ def parse_args(argv=None) -> argparse.Namespace:
         parser.error("--temperature must be >= 0")
     if args.retries < 1:
         parser.error("--retries must be >= 1")
+    if args.retries == 1 and args.timeout < 120.0:
+        # this combination maximizes skip-induced bias: with a single
+        # attempt, one transient timeout permanently drops the question,
+        # and skipped questions are excluded from the accuracy denominator,
+        # so slow/hard questions inflate the reported score
+        print(f"WARNING: --retries 1 with --timeout {args.timeout:g}s: a "
+              f"single transient failure (e.g. one timeout) permanently "
+              f"skips a question, and skipped questions are excluded from "
+              f"the accuracy — this biases the reported score upward. "
+              f"Consider --retries >= 3 or a larger --timeout.",
+              file=sys.stderr)
     return args
 
 
