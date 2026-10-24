@@ -1,0 +1,1041 @@
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 2581/4000, skipped: 191 — enum: 497 / 113 | formula: 284 / 322 | math: 471 / 77 | yesno: 605 / 21 — [grader: 0/1 busy, slow(>10s): 1, timeouts: 1] — ETA: 4h 34mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 2634/4000, skipped: 194 — enum: 506 / 117 | formula: 292 / 328 | math: 481 / 78 | yesno: 617 / 21 — [grader: 0/1 busy, slow(>10s): 1, timeouts: 1] — ETA: 4h 24mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 2676/4000, skipped: 200 — enum: 512 / 119 | formula: 296 / 334 | math: 488 / 79 | yesno: 627 / 21 — [grader: 0/1 busy, slow(>10s): 1, timeouts: 1] — ETA: 4h 17mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 2721/4000, skipped: 206 — enum: 518 / 122 | formula: 300 / 340 | math: 494 / 82 | yesno: 638 / 21 — [grader: 0/1 busy, slow(>10s): 1, timeouts: 1] — ETA: 4h 9mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 2774/4000, skipped: 211 — enum: 527 / 126 | formula: 306 / 345 | math: 503 / 84 | yesno: 651 / 21 — [grader: 0/1 busy, slow(>10s): 1, timeouts: 1] — ETA: 3h 58mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 2821/4000, skipped: 216 — enum: 535 / 130 | formula: 308 / 354 | math: 508 / 86 | yesno: 663 / 21 — [grader: 0/1 busy, slow(>10s): 1, timeouts: 1] — ETA: 3h 49mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 2878/4000, skipped: 220 — enum: 545 / 134 | formula: 315 / 361 | math: 518 / 88 | yesno: 675 / 22 — [grader: 0/1 busy, slow(>10s): 1, timeouts: 1] — ETA: 3h 38mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 2933/4000, skipped: 223 — enum: 559 / 134 | formula: 318 / 371 | math: 526 / 91 | yesno: 687 / 24 — [grader: 0/1 busy, slow(>10s): 1, timeouts: 1] — ETA: 3h 27mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 2986/4000, skipped: 227 — enum: 569 / 137 | formula: 325 / 378 | math: 533 / 93 | yesno: 700 / 24 — [grader: 0/1 busy, slow(>10s): 1, timeouts: 1] — ETA: 3h 16mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3045/4000, skipped: 230 — enum: 580 / 140 | formula: 332 / 385 | math: 544 / 95 | yesno: 714 / 25 — [grader: 0/1 busy, slow(>10s): 1, timeouts: 1] — ETA: 3h 4mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3095/4000, skipped: 235 — enum: 591 / 141 | formula: 337 / 392 | math: 553 / 96 | yesno: 723 / 27 — [grader: 0/1 busy, slow(>10s): 1, timeouts: 1] — ETA: 2h 55mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3117/4000, skipped: 236 — enum: 597 / 141 | formula: 341 / 393 | math: 557 / 96 | yesno: 729 / 27 — [grader: 0/1 busy, slow(>10s): 1, timeouts: 1] — ETA: 2h 50m
+[grade] slow grade took 14.0s; qid=section-9-13-dataset-formula:4 dataset=formula
+progress: 3145/4000, skipped: 238 — enum: 603 / 142 | formula: 345 / 395 | math: 563 / 97 | yesno: 735 / 27 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 2h 45mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3198/4000, skipped: 244 — enum: 614 / 142 | formula: 353 / 400 | math: 573 / 97 | yesno: 747 / 28 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 2h 35mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3248/4000, skipped: 247 — enum: 623 / 144 | formula: 359 / 406 | math: 583 / 98 | yesno: 760 / 28 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 2h 25mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3304/4000, skipped: 250 — enum: 633 / 147 | formula: 367 / 411 | math: 595 / 99 | yesno: 773 / 29 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 2h 14mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3358/4000, skipped: 255 — enum: 643 / 150 | formula: 373 / 419 | math: 605 / 99 | yesno: 785 / 29 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 2h 4mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3411/4000, skipped: 261 — enum: 653 / 152 | formula: 376 / 427 | math: 616 / 101 | yesno: 796 / 29 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 1h 53mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3473/4000, skipped: 263 — enum: 665 / 156 | formula: 384 / 434 | math: 628 / 102 | yesno: 812 / 29 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 1h 41mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3522/4000, skipped: 266 — enum: 673 / 160 | formula: 387 / 443 | math: 637 / 104 | yesno: 823 / 29 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 1h 32mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3570/4000, skipped: 270 — enum: 683 / 162 | formula: 390 / 451 | math: 645 / 105 | yesno: 835 / 29 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 1h 23mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3616/4000, skipped: 274 — enum: 691 / 165 | formula: 397 / 455 | math: 654 / 105 | yesno: 846 / 29 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 1h 14mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3672/4000, skipped: 279 — enum: 701 / 168 | formula: 401 / 465 | math: 664 / 106 | yesno: 856 / 32 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 1h 3mTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3726/4000, skipped: 280 — enum: 712 / 171 | formula: 408 / 471 | math: 676 / 107 | yesno: 869 / 32 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 52m 55sTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3784/4000, skipped: 284 — enum: 725 / 172 | formula: 415 / 478 | math: 685 / 109 | yesno: 884 / 32 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 41m 39sTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3834/4000, skipped: 291 — enum: 733 / 174 | formula: 422 / 483 | math: 694 / 110 | yesno: 894 / 33 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 32m 2sTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3886/4000, skipped: 295 — enum: 743 / 175 | formula: 426 / 492 | math: 705 / 110 | yesno: 905 / 35 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 21m 59sTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3942/4000, skipped: 301 — enum: 751 / 179 | formula: 431 / 500 | math: 713 / 113 | yesno: 918 / 36 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 11m 10sTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 3993/4000, skipped: 307 — enum: 761 / 182 | formula: 437 / 503 | math: 721 / 116 | yesno: 930 / 36 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 1m 20sTimeout (0:10:00)!
+Thread 0x0000700004d60000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700003d5d000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700002d5a000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>
+progress: 4000/4000, skipped: 307 — enum: 762 / 182 | formula: 438 / 504 | math: 723 / 116 | yesno: 932 / 36 — [grader: 0/1 busy, slow(>10s): 2, timeouts: 1] — ETA: 0s — finished in 46257.6s
+
+============================================================
+dataset         correct/graded    accuracy  skipped
+------------------------------------------------------------
+enum               762/944          80.72%       56
+formula            438/942          46.50%       58
+math               723/839          86.17%      161
+yesno              932/968          96.28%       32
+------------------------------------------------------------
+TOTAL             2855/3693         77.31%      307
+============================================================
+note: 307 question(s) skipped after 1 retries and excluded from the score
+
+mismatch examples [enum]:
+  section-9-4-dataset-enum:3
+    expected: 'aggregate exposure to systematic market risk (beta) is approximately zero, isolates alpha (security-specific returns)'
+    got     : 'aggregate exposure to systematic market risk (beta) is approximately zero, isolates alpha (security-specific returns), ensures equal dollar exposure in long and'
+  section-9-5-dataset-enum:24
+    expected: 'L1/L2 penalties, Dropout, Early stopping, Cross-validation'
+    got     : 'L1/L2 penalties, Dropout, Early stopping'
+  section-3-11-dataset-enum:5
+    expected: 'Cash-and-Carry Arbitrage, Reverse Cash-and-Carry Arbitrage'
+    got     : 'Cash-and-Carry Arbitrage, Reverse Cash-and-Carry Arbitrage, Basis Trading'
+
+request errors [enum]:
+  section-4-18-dataset-enum:38: request failed after 1 attempts: TimeoutError:
+  section-4-20-dataset-enum:17: request failed after 1 attempts: TimeoutError:
+  section-4-16-dataset-enum:20: request failed after 1 attempts: TimeoutError:
+
+mismatch examples [formula]:
+  section-9-25-dataset-formula:3
+    expected: '\\theta = -\\frac{1}{\\Delta} \\ln(a)'
+    got     : '\\theta = -\\frac{\\ln(a)}{\\Delta t}'
+  section-7-17-dataset-formula:10
+    expected: 'R_2 = \\text{PP} + 0.618 \\times (H - L)'
+    got     : 'R2 = \\text{PP} + (H - L)'
+  section-9-20-dataset-formula:11
+    expected: 'A_t = \\sum_{k=1}^{t} E[X_k - X_{k-1} \\mid \\mathcal{F}_{k-1}]'
+    got     : 'A_t = \\sum_{s=1}^{t} \\text{E}[X_s - X_{s-1} \\mid \\mathcal{F}_{s-1}]'
+
+request errors [formula]:
+  section-4-22-dataset-formula:1: request failed after 1 attempts: TimeoutError:
+  section-2-19-dataset-formula:4: request failed after 1 attempts: TimeoutError:
+  section-1-18-dataset-formula:19: request failed after 1 attempts: TimeoutError:
+
+mismatch examples [math]:
+  section-4-15-dataset-math:28
+    expected: 'Home bias is calculated as:\n\n$$\\text{Home Bias} = w_{home}^{actual} - w_{home}^{global}$$\n\\nGiven:\n- $w_{home}^{actual} '
+    got     : '# Home Bias Calculation\n\n## Concept\n\n**Home bias** measures the degree to which an investor overweights domestic assets relative to what a globally diversified '
+  section-7-13-dataset-math:7
+    expected: 'The formula for Turnover Ratio is:\n\\nTurnover Ratio = (Trading Volume / Average Market Capitalization) * 100\n\\nGiven:\n- '
+    got     : '## Turnover Ratio Calculation\n\n**Formula:**\n$$\\text{Turnover Ratio} = \\frac{\\text{Trading Volume}}{\\text{Average Market Capitalization}}$$\n\n**Given values:**\n- '
+  section-4-8-dataset-math:1
+    expected: 'To calculate the Fill Rate, we use the formula:\n\n$$\\text{Fill Rate} = \\frac{\\text{Number of Filled Orders}}{\\text{Number'
+    got     : '## Solution\n\n**Fill Rate** measures the percentage of orders that were successfully filled out of the total number of orders submitted.\n\n**Formula:**\n$$\\text{Fi'
+
+request errors [math]:
+  section-9-35-dataset-math:1: request failed after 1 attempts: TimeoutError:
+  section-6-3-dataset-math:0: request failed after 1 attempts: TimeoutError:
+  section-1-9-dataset-math:5: request failed after 1 attempts: TimeoutError:
+
+mismatch examples [yesno]:
+  section-6-12-dataset-yesno:63
+    expected: 'no'
+    got     : 'yes'
+  section-9-17-dataset-yesno:24
+    expected: 'no'
+    got     : 'yes'
+  section-9-29-dataset-yesno:44
+    expected: 'no'
+    got     : 'yes'
+
+request errors [yesno]:
+  section-9-22-dataset-yesno:14: request failed after 1 attempts: TimeoutError:
+  section-3-6-dataset-yesno:33: request failed after 1 attempts: TimeoutError:
+  section-2-12-dataset-yesno:36: request failed after 1 attempts: TimeoutError:
+(.venv) (base) vasya@Mac-mini-Vasiliy finmath-distill-bench %
+(.venv) (base) vasya@Mac-mini-Vasiliy finmath-distill-bench % ./benchmark_model.py --host http://vasya-ubuntu.local:8080/v1 --model moziAI-V3.7-35B-A3B -c 1 -n 1000 --timeout 30 --max-tokens 30000 --token none -d all --retries 1
+endpoint : http://vasya-ubuntu.local:8080/v1/chat/completions
+model    : moziAI-V3.7-35B-A3B
+questions: 4000 (enum=1000, formula=1000, math=1000, yesno=1000)
+workers  : 1
+temp     : 0
+
+progress: 2/4000, skipped: 2 — enum: 0 / 0 | formula: 0 / 0 | math: 0 / 0 | yesno: 0 / 0 — [grader: 0/0 busy, slow(>10s): 0, timeouts: 0] — ETA: 1d 10h^C
+interrupted
+(.venv) (base) vasya@Mac-mini-Vasiliy finmath-distill-bench % ./benchmark_model.py --host http://vasya-ubuntu.local:8080/v1 --model moziAI-V3.7-35B-A3B -c 1 -n 1000 --timeout 30 --max-tokens 30000 --token none -d all --retries 1
+endpoint : http://vasya-ubuntu.local:8080/v1/chat/completions
+model    : moziAI-V3.7-35B-A3B
+questions: 4000 (enum=1000, formula=1000, math=1000, yesno=1000)
+workers  : 1
+temp     : 0
+
+progress: 10/4000, skipped: 2 — enum: 2 / 0 | formula: 1 / 2 | math: 1 / 0 | yesno: 2 / 0 — [grader: 0/1 busy, slow(>10s): 0, timeouts: 0] — ETA: 16h 0m^CProcess SpawnProcess-1:
+Traceback (most recent call last):
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 251, in _process_worker
+    call_item = call_queue.get(block=True)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 103, in get
+    res = self._recv_bytes()
+          ^^^^^^^^^^^^^^^^^^
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 216, in recv_bytes
+    buf = self._recv_bytes(maxlength)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 430, in _recv_bytes
+    buf = self._recv(4)
+          ^^^^^^^^^^^^^
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 395, in _recv
+    chunk = read(handle, remaining)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+interrupted
+(.venv) (base) vasya@Mac-mini-Vasiliy finmath-distill-bench % ./benchmark_model.py --host http://vasya-ubuntu.local:8080/v1 --model moziAI-V3.7-35B-A3B -c 1 -n 1000 --timeout 60 --max-tokens 30000 --token none -d all --retries 1
+endpoint : http://vasya-ubuntu.local:8080/v1/chat/completions
+model    : moziAI-V3.7-35B-A3B
+questions: 4000 (enum=1000, formula=1000, math=1000, yesno=1000)
+workers  : 1
+temp     : 0
+
+progress: 41/4000, skipped: 2 — enum: 10 / 1 | formula: 3 / 6 | math: 8 / 1 | yesno: 9 / 1 — [grader: 0/1 busy, slow(>10s): 0, timeouts: 0] — ETA: 15h 58mTimeout (0:10:00)!
+Thread 0x0000700011adb000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 355 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/queues.py", line 246 in _feed
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x0000700010ad8000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 415 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/multiprocessing/connection.py", line 1135 in wait
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 426 in wait_result_broken_or_wakeup
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/process.py", line 353 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x000070000fad5000 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/concurrent/futures/thread.py", line 89 in _worker
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1010 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1073 in _bootstrap_inner
+  File "/Users/vasya/miniconda3/lib/python3.12/threading.py", line 1030 in _bootstrap
+
+Thread 0x00007ff84acdcfc0 (most recent call first):
+  File "/Users/vasya/miniconda3/lib/python3.12/selectors.py", line 566 in select
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 1933 in _run_once
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 638 in run_forever
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/base_events.py", line 671 in run_until_complete
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 118 in run
+  File "/Users/vasya/miniconda3/lib/python3.12/asyncio/runners.py", line 194 in run
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1756 in main
+  File "/Users/vasya/projects/finmath-distill-bench/./benchmark_model.py", line 1769 in <module>

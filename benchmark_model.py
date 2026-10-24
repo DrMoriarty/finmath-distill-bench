@@ -1571,9 +1571,13 @@ async def run(args: argparse.Namespace) -> int:
                     correct = await _grade_timed(item, response, GRADE_TIMEOUT)
                     results[name]["correct"] += int(correct)
                     if not correct:
+                        if item.get("type") == "math":
+                            expected = str(item.get("answer", ""))
+                        else:
+                            expected = item["messages"][1]["content"][:120]
                         results[name]["mismatches"].append(
                             (item.get("id", "?"),
-                             item["messages"][1]["content"][:120],
+                             expected,
                              response[:160])
                         )
                 results[name]["done"] += 1
