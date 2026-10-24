@@ -1309,6 +1309,21 @@ class WatchdogStall(RuntimeError):
 WATCHDOG_POLL_SECONDS = 30.0
 WATCHDOG_STALL_SECONDS = 420.0
 
+# Crash diagnostics for silent hangs the asyncio watchdog cannot see (stuck
+# C-level code in the main process freezes the event loop, so watchdog()
+# never gets to run): dump all thread stacks after HANG_DUMP_SECONDS with no
+# progress at all.  The timer is re-armed on every completed question (see
+# _rearm_hang_dump), so it only fires for a process-level stall — never on a
+# healthy, merely slow run.
+HANG_DUMP_SECONDS = 600.0
+
+
+def _rearm_hang_dump() -> None:
+    """(Re-)arm the faulthandler wall-clock hang dump."""
+    faulthandler.cancel_dump_traceback_later()
+    faulthandler.dump_traceback_later(
+        HANG_DUMP_SECONDS, repeat=True, file=sys.stderr)
+
 
 def _dump_stall_diagnostics(inflight: dict, stalled_for: float) -> None:
     """Dump everything needed to debug a stalled run to stderr: thread
@@ -1591,6 +1606,7 @@ async def run(args: argparse.Namespace) -> int:
                         )
                 results[name]["done"] += 1
                 done_counter["done"] += 1
+                _rearm_hang_dump()
                 print(progress_line(), end="", flush=True)
         finally:
             inflight.pop(task, None)
@@ -1761,10 +1777,13 @@ def _sigint_handler(signum, frame):
 
 def main() -> int:
     signal.signal(signal.SIGINT, _sigint_handler)
-    # Crash diagnostics for silent hangs: if the process stops making
-    # progress (stuck C-level sympy arithmetic, event-loop stall, ...),
-    # dump the stacks of all threads to stderr every 10 minutes.
-    faulthandler.dump_traceback_later(600, repeat=True, file=sys.stderr)
+    # Crash diagnostics for silent hangs the asyncio watchdog cannot reach
+    # (stuck C-level sympy arithmetic freezing the event loop, ...): dump
+    # all thread stacks after 10 minutes without any completed question.
+    # Re-armed on every completion (worker), so it never fires on a healthy
+    # run; a mere event-loop stall with no C-level hang is already caught
+    # earlier by watchdog() (WATCHDOG_STALL_SECONDS=420).
+    _rearm_hang_dump()
     try:
         return asyncio.run(run(parse_args()))
     except KeyboardInterrupt:
