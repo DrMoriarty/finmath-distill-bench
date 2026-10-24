@@ -1169,6 +1169,14 @@ _GRADE_SLOW_SECONDS = 10.0
 _GRADER_POOL = None
 
 
+def _grader_worker_init() -> None:
+    # workers share the terminal's process group, so Ctrl-C delivers SIGINT to
+    # them too; only the parent should handle it (its _sigint_handler does the
+    # graceful cancel + pool kill) — ignoring it here avoids spurious
+    # KeyboardInterrupt tracebacks from spawned workers on shutdown.
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+
 def _get_grader_pool() -> concurrent.futures.ProcessPoolExecutor:
     global _GRADER_POOL
     if _GRADER_POOL is None:
@@ -1177,6 +1185,7 @@ def _get_grader_pool() -> concurrent.futures.ProcessPoolExecutor:
         _GRADER_POOL = concurrent.futures.ProcessPoolExecutor(
             max_workers=min(32, (os.cpu_count() or 1) + 4),
             mp_context=_GRADER_MP_CONTEXT,
+            initializer=_grader_worker_init,
         )
     return _GRADER_POOL
 
